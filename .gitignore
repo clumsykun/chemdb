@@ -1,0 +1,8 @@
+*.so
+
+.vscode/*
+build/*
+dist/*
+chempath.egg-info/*
+chempath/__pycache__/*
+chempath/core/__pycache__/*
