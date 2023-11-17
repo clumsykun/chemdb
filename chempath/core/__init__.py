@@ -1,4 +1,7 @@
-from ._chempath import test
+from ._chempath import *
 
 
-__all__ = ['test']
+__all__ = [
+    'num_element',
+    'BaseElement,'
+]
