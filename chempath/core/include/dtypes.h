@@ -1,12 +1,13 @@
 #ifndef DTYPES
 #define DTYPES
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
 
-#define NUM_ELEMENT 118
+#include <stddef.h>
+
+#define NUM_ELEMENTS 118
 
 
-typedef struct {
+typedef struct
+{
     size_t id;
     char name[100];
     char chinese[100];
@@ -14,23 +15,45 @@ typedef struct {
     double mass;
 } element;
 
+typedef struct
+{
+    char cas[12];  /* CAS Registry Number */
+    char* name;
+    char* chinese;
+    char* formula;
+    char* smiles;        /* Simplified molecular-input line-entry system */
+    element* elems;      /* size = elems_size */
+    size_t*  elems_cnt;  /* size = elems_size */
+    size_t   elems_num;
+} substance;
 
-typedef struct {
-    PyObject_HEAD
-    element *elem;
-} Element;
+typedef struct
+{
+    substance* reactants;
+    size_t     reactants_num;
+    substance* products;
+    size_t     products_num;
+} reaction;
+
+typedef struct
+{
+    reaction*  reactions;
+    size_t     reactions_num;
+    substance* inputs;
+    size_t     inputs_num;
+    substance* target;
+} step;
+
+typedef struct
+{
+    step*   steps;
+    size_t* steps_tier;
+    size_t  steps_num;
+} pathway;
 
 
-PyObject *PyLong_num_element();
-PyObject *Element_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
-int       Element_init(Element *self, PyObject *args);
-void      Element_dealloc(Element *self);
-PyObject *Element_id(Element *self, void *closure);
-PyObject *Element_name(Element *self, void *closure);
-PyObject *Element_chinese(Element *self, void *closure);
-PyObject *Element_mass(Element *self, void *closure);
-PyObject *Element_symbol(Element *self, void *closure);
-PyObject *Element_str(Element *self);
+element *
+element_locate_by_id(size_t id);
 
 
 #endif /* DTYPES */

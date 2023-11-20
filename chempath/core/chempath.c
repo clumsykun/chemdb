@@ -1,4 +1,6 @@
-#include "dtypes.h"
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+#include "chemtypes.h"
 
 
 static PyGetSetDef Element_getset[] = {

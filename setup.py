@@ -6,6 +6,7 @@ _chempath = Extension(
     sources = [
         'chempath/core/chempath.c',
         'chempath/core/src/dtypes.c',
+        'chempath/core/src/chemtypes.c',
     ],
     include_dirs = ['chempath/core/include'],
 )
