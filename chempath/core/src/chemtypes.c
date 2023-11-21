@@ -90,3 +90,38 @@ PyLong_num_element()
 {
     return (PyObject *) PyLong_FromLong(NUM_ELEMENTS);
 }
+
+
+/* =================================================================================================
+ * Substance Definition
+ */
+
+PyObject *
+Substance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Substance *self;
+    self = (Substance *) type->tp_alloc(type, 0);
+
+    if (self)
+        return (PyObject *) self;
+    else
+        return NULL;
+}
+
+int
+Substance_init(Substance *self, PyObject *args, PyObject *kwds)
+{
+    int id;
+
+    if (!PyArg_ParseTuple(args, "i", &id))
+        return -1;
+
+    return 0;
+}
+
+void
+Substance_dealloc(Substance *self)
+{
+    self->data = NULL;
+    Py_TYPE(self)->tp_free((PyObject *) self);
+}

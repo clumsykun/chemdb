@@ -6,6 +6,20 @@
 #define NUM_ELEMENTS 118
 
 
+struct pnode
+{
+    void *p;
+    struct pnode *next;
+    struct pnode *prev;
+};
+
+struct ids
+{
+    size_t id;
+    struct ids *next;
+    struct ids *prev;
+};
+
 typedef struct
 {
     size_t id;
@@ -17,37 +31,37 @@ typedef struct
 
 typedef struct
 {
-    char cas[12];  /* CAS Registry Number */
-    char* name;
-    char* chinese;
-    char* formula;
-    char* smiles;        /* Simplified molecular-input line-entry system */
-    element* elems;      /* size = elems_size */
-    size_t*  elems_cnt;  /* size = elems_size */
+    char    cas[12];  /* CAS Registry Number */
+    char    *name;
+    char    *chinese;
+    char    *formula;
+    char    *smiles;     /* Simplified molecular-input line-entry system */
+    element *elems;      /* size = elems_size */
+    size_t  *elems_cnt;  /* size = elems_size */
     size_t   elems_num;
 } substance;
 
 typedef struct
 {
-    substance* reactants;
+    substance *reactants;
     size_t     reactants_num;
-    substance* products;
+    substance *products;
     size_t     products_num;
 } reaction;
 
 typedef struct
 {
-    reaction*  reactions;
+    reaction  *reactions;
     size_t     reactions_num;
-    substance* inputs;
+    substance *inputs;
     size_t     inputs_num;
-    substance* target;
+    substance *target;
 } step;
 
 typedef struct
 {
-    step*   steps;
-    size_t* steps_tier;
+    step   *steps;
+    size_t *steps_tier;
     size_t  steps_num;
 } pathway;
 
