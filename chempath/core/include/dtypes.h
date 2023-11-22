@@ -6,20 +6,6 @@
 #define NUM_ELEMENTS 118
 
 
-struct pnode
-{
-    void *p;
-    struct pnode *next;
-    struct pnode *prev;
-};
-
-struct ids
-{
-    size_t id;
-    struct ids *next;
-    struct ids *prev;
-};
-
 typedef struct
 {
     size_t id;
