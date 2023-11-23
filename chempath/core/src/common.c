@@ -4,6 +4,9 @@
 #include "common.h"
 
 
+#define INIT_HASH_SIZE 128
+#define cal_bucket_idx(key, mask) (__hash((const unsigned char *)(key)) & (size_t)(mask))
+
 /** ================================================================================================
  * Hash table, use djb2 hash.
  */
@@ -22,47 +25,64 @@ __hash(const unsigned char *key)
 
 /* NULL on failure. */
 hashtable *
-hashtable_new(size_t size, fp_get_key fp)
+hashtable_new(fp_hash_key fp)
 {
     hashtable *ht = malloc(sizeof(hashtable));
-    struct node *data = malloc(size * sizeof(struct node));
+    struct node **buckets = calloc(INIT_HASH_SIZE, sizeof(struct node *));
 
-    if (!(ht && data)) {
+    if (!(ht && buckets)) {
         free(ht);
-        free(data);
+        free(buckets);
         return NULL;
     }
 
-    ht->data = data;
-    ht->size = size;    
-    ht->get_key = fp;
+    ht->buckets = buckets;
+    ht->size = INIT_HASH_SIZE;
+    ht->hash_key = fp;
     return ht;
 }
 
-/* NULL on failure. */
-static struct node *
-hashtable_find_node(hashtable *ht, const char *key)
+struct node **
+hashtable_get_bucket(hashtable *ht, const char *key)
 {
-    struct node *nd = ht->data + __hash((const unsigned char *)key) % ht->size;
+    return ht->buckets + cal_bucket_idx(key, ht->size - 1);
+}
 
+static void *
+bucket_get(struct node **bucket, fp_hash_key fp, const char *key)
+{
+    struct node *nd = *bucket;
     while (1) {
 
         if (!nd)
             return NULL;
-    
-        if (!strcmp(ht->get_key(nd->item), key))
-            return nd;
+
+        if (!strcmp(fp(nd->item), key))
+            return nd->item;
 
         nd = nd->next;
-    }
+    }    
+}
+
+static int
+bucket_set(struct node **bucket, fp_hash_key fp, const char *key, void *item)
+{
+    struct node *nd = malloc(sizeof(struct node));
+
+    if (!nd)
+        return -1;
+
+    nd->item = item;
+    nd->next = *bucket;
+    *bucket = nd;
+    return 0;
 }
 
 /* NULL on failure. */
 void *
-hashtable_find(hashtable *ht, const char *key)
+hashtable_get(hashtable *ht, const char *key)
 {
-    struct node *nd = hashtable_find_node(ht, key);
-    return (nd ? nd->item : NULL);
+    return bucket_get(hashtable_get_bucket(ht, key), key, ht->hash_key);
 }
 
 /**
@@ -70,91 +90,50 @@ hashtable_find(hashtable *ht, const char *key)
  * return -1 on failure.
  */
 int
-hashtable_insert(hashtable *ht, const char *key, void *item)
+hashtable_set(hashtable *ht, const char *key, void *item)
 {
-    struct node *root = ht->data + __hash((const unsigned char *)key) % ht->size;
+    struct node **bucket = hashtable_get_bucket(ht, key);
 
-    /* hashtable root empty */
-    if (!root) {
-        root->prev = NULL;
-        root->next = NULL;    
-        root->item = item;
+    if (!item) {
+        struct node **next, **pp = bucket;
+
+        while (*pp) {
+            if (!strcmp(ht->hash_key((*pp)->item), key)) {
+                *next = (*pp)->next;
+                free(*pp);
+                pp = next;
+                return 0;
+            }
+
+            pp = &((*pp)->next);
+        }
+
         return 0;
     }
 
-    /* create leaf node */
-    struct node *nd = malloc(sizeof(struct node));
+    struct node *nd = *bucket;
 
-    if (nd == NULL)
-        return -1;
+    if (bucket_get(bucket, ht->hash_key, key))
+        return;
 
-    nd->item = item;
-
-    /* insert */
-    if (root->next) {
-        struct node *next = root->next;
-        nd->prev = root;
-        nd->next = next;
-        next->prev = nd;
-        root->next = nd;
-    }
-    /* append */
-    else {
-        nd->prev = root;
-        nd->next = NULL;
-        root->next = nd;
-    }
-
-    return 0;
+    return bucket_set(bucket, ht->hash_key, key, item);
 }
 
 static void
-hashtable_del_node(struct node *nd)
+hashtable_del(hashtable *ht)
 {
-    if (!nd)
-        return;
+    struct node *nd, *tmp;
+    struct node **bucket = ht->buckets;
 
-    struct node *prev = nd->prev;
-    struct node *next = nd->next;
+    for (size_t i = 0; i < ht->size; i++, bucket++) {
+        nd = *bucket;
 
-    /* case root */
-    if (!prev) {
-
-        if (!next) {
-            memset(nd, 0, sizeof(struct node));
-            return;
+        while (nd) {
+            tmp = nd;
+            nd = nd->next;
+            free(tmp);
         }
-
-        nd->item = next->item;
-        nd->next = next->next;
-
-        if (next->next)
-            next->next->prev = nd;
-
-        free(next);
-        return;
     }
-
-    /* case leaf */
-    else {
-        /* tail */
-        if (!next) {
-            prev->next = NULL;
-            free(nd);
-            return;
-        }
-
-        prev->next = next;
-        next->prev = prev;
-        free(nd);
-        return;
-    }
-}
-
-void
-hashtable_remove(hashtable *ht, const char *key)
-{
-    hashtable_del_node(hashtable_find_node(ht, key));
 }
 
 
@@ -172,13 +151,13 @@ stack_new()
         return NULL;
 
     stk->size = 0;
-    stk->data = NULL;
+    stk->head = NULL;
 }
 
 void
 stack_del(stack *stk)
 {
-    struct stack_node *tmp, *nd = stk->data;
+    struct node *tmp, *nd = stk->head;
 
     while (nd) {
         tmp = nd;
@@ -192,18 +171,14 @@ stack_del(stack *stk)
 int
 stack_push(stack *stk, void *item)
 {
-    struct stack_node *nd = malloc(sizeof(struct stack_node));
+    struct node *tmp, *nd = malloc(sizeof(struct node));
 
     if (!nd)
         return -1;
 
-    if (!stk->data)
-        nd->next = NULL;
-    else
-        nd->next = stk->data->next;
-
+    nd->next = stk->head;
     nd->item = item;
-    stk->data = nd;
+    stk->head = nd;
     stk->size++;
     return 0;
 }
@@ -212,13 +187,13 @@ stack_push(stack *stk, void *item)
 void *
 stack_pop(stack *stk)
 {
-    struct stack_node *nd = stk->data;
+    struct node *nd = stk->head;
 
     if (!nd)
         return NULL;
 
     void *item = nd->item;
-    stk->data = nd->next;
+    stk->head = nd->next;
     stk->size--;
 
     free(nd);

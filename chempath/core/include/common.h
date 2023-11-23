@@ -2,39 +2,31 @@
 #define COMMON
 
 
-typedef const char *(*fp_get_key)(void *);
+typedef const char *(*fp_hash_key)(void *);
 
 struct node
 {
     void *item;
     struct node *next;
-    struct node *prev;
 };
 
 typedef struct
 {
     size_t size;
-    struct node *data;
-    fp_get_key get_key;
+    struct node **buckets;
+    fp_hash_key hash_key;
 } hashtable;
 
-struct stack_node
-{
-    void *item;
-    struct stack_node *next;
-};
-
 typedef struct
 {
     size_t size;
-    struct stack_node *data;
+    struct node *head;
 } stack;
 
 
-hashtable *hashtable_new(size_t size, fp_get_key fp);
-void      *hashtable_find(hashtable *ht, const char *key);
-int        hashtable_insert(hashtable *ht, const char *key, void *item);
-void       hashtable_remove(hashtable *ht, const char *key);
+hashtable *hashtable_new(fp_hash_key fp);
+void      *hashtable_get(hashtable *ht, const char *key);
+int        hashtable_set(hashtable *ht, const char *key, void *item);
 
 stack *stack_new();
 void   stack_del(stack *stk);
