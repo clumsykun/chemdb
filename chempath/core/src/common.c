@@ -4,7 +4,7 @@
 #include "common.h"
 
 
-#define INIT_HASH_SIZE 128
+#define INIT_HASH_SIZE 1024
 #define cal_bucket_idx(key, mask) (__hash((const unsigned char *)(key)) & (size_t)(mask))
 
 /** ================================================================================================
@@ -38,6 +38,7 @@ hashtable_new(fp_hash_key fp)
 
     ht->buckets = buckets;
     ht->size = INIT_HASH_SIZE;
+    ht->used = 0;
     ht->hash_key = fp;
     return ht;
 }
@@ -101,7 +102,8 @@ hashtable_set(hashtable *ht, const char *key, void *item)
             if (!strcmp(ht->hash_key((*pp)->item), key)) {
                 *next = (*pp)->next;
                 free(*pp);
-                pp = next;
+                *pp = *next;
+                ht->used--;
                 return 0;
             }
 
@@ -114,8 +116,9 @@ hashtable_set(hashtable *ht, const char *key, void *item)
     struct node *nd = *bucket;
 
     if (bucket_get(bucket, ht->hash_key, key))
-        return;
+        return 0;
 
+    ht->used++;
     return bucket_set(bucket, ht->hash_key, key, item);
 }
 

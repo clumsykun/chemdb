@@ -13,6 +13,7 @@ struct node
 typedef struct
 {
     size_t size;
+    size_t used;
     struct node **buckets;
     fp_hash_key hash_key;
 } hashtable;
