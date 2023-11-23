@@ -45,18 +45,16 @@ hashtable_find_node(hashtable *ht, const char *key)
 {
     struct node *nd = ht->data + __hash((const unsigned char *)key) % ht->size;
 
-    /* root empty */
-    if (!nd)
-        return NULL;
+    while (1) {
 
-    while (nd) {        
+        if (!nd)
+            return NULL;
+    
         if (!strcmp(ht->get_key(nd->item), key))
             return nd;
 
         nd = nd->next;
     }
-
-    return NULL;
 }
 
 /* NULL on failure. */
