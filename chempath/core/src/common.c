@@ -5,7 +5,8 @@
 
 
 #define INIT_HASH_SIZE 1024
-#define cal_bucket_idx(key, mask) (__hash((const unsigned char *)(key)) & (size_t)(mask))
+#define INIT_STK_SIZE 4
+
 
 /** ================================================================================================
  * Hash table, use djb2 hash.
@@ -23,12 +24,33 @@ __hash(const unsigned char *key)
     return hash;
 }
 
+static void **
+quadratic_probe(hashtable *ht, const char *key)
+{
+    size_t hash = __hash((const unsigned char *)(key));
+    size_t mask = ht->size - 1;
+    void **bucket;
+
+    for (size_t idx, i = 0; i < ht->size; i++) {
+        idx = ((hash + i * i) & mask);
+        bucket = ht->buckets + (idx * 2);
+
+        /* This key is not in the table, return the empty bucket. */
+        if (!bucket[0])
+            return bucket;
+
+        /* Matched, return the bucket */
+        if (!strcmp(bucket[1], key))
+            return bucket;
+    }
+}
+
 /* NULL on failure. */
 hashtable *
-hashtable_new(fp_cst_key cst_key)
+hashtable_new()
 {
     hashtable *ht = malloc(sizeof(hashtable));
-    void **buckets = calloc(INIT_HASH_SIZE, sizeof(void *));
+    void **buckets = calloc(INIT_HASH_SIZE * 2, sizeof(void *));
 
     if (!(ht && buckets)) {
         free(ht);
@@ -38,30 +60,25 @@ hashtable_new(fp_cst_key cst_key)
 
     ht->buckets = buckets;
     ht->size = INIT_HASH_SIZE;
-    ht->cst_key = cst_key;
     ht->used = 0;
     return ht;
 }
 
-static void **
-quadratic_probe(hashtable *ht, const char *key)
-{
-    size_t hash = __hash((const unsigned char *)(key));
-    size_t mask = ht->size - 1;
-    void **bucket;
+// static void
+// hashtable_expand(hashtable *ht)
+// {
+//     size_t new_size = ht->size * 2;
+//     void **new_buckets = calloc(new_size, sizeof(void *));
 
-    for (size_t i = 0; i < ht->size; i++) {
-        bucket = ht->buckets + ((hash + i * i) & mask);
+//     for (size_t i = 0; i < ht->size; i++) {
+        
+//     }
+    
 
-        /* This key is not in the table, return the empty bucket. */
-        if (!(*bucket))
-            return bucket;
 
-        /* Matched, return the bucket */
-        if (!strcmp(ht->cst_key(*bucket), key))
-            return bucket;
-    }
-}
+
+
+// }
 
 /* NULL on failure. */
 void *
@@ -84,22 +101,24 @@ hashtable_set(hashtable *ht, const char *key, void *item, bool is_replace)
 
     if (item) {
 
-        /* Empty bucket. */
-        if (!(*bucket)) {
-            *bucket = item;
+        /* Insert empty bucket. */
+        if (!bucket[0]) {
+            bucket[0] = item;
+            bucket[1] = (void *)key;
             ht->used++;
         }
 
         /* Replace. */
-        if ((*bucket) && is_replace)
-            *bucket = item;
+        if (bucket[0] && is_replace)
+            bucket[0] = item;
     }
 
     else {
 
         /* Clear the bucket */
-        if (bucket) {
-            *bucket = NULL;
+        if (bucket[0]) {
+            bucket[0] = NULL;
+            bucket[1] = NULL;
             ht->used--;
         }
     }
@@ -108,18 +127,8 @@ hashtable_set(hashtable *ht, const char *key, void *item, bool is_replace)
 static void
 hashtable_del(hashtable *ht)
 {
-    struct node *nd, *tmp;
-    struct node **bucket = ht->buckets;
-
-    for (size_t i = 0; i < ht->size; i++, bucket++) {
-        nd = *bucket;
-
-        while (nd) {
-            tmp = nd;
-            nd = nd->next;
-            free(tmp);
-        }
-    }
+    free(ht->buckets);
+    free(ht);
 }
 
 
