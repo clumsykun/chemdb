@@ -4,7 +4,7 @@
 #include "common.h"
 
 
-#define INIT_HASH_SIZE 1024
+#define INIT_HASH_SIZE 4
 #define INIT_STK_SIZE 4
 
 
@@ -64,21 +64,25 @@ hashtable_new()
     return ht;
 }
 
-// static void
-// hashtable_expand(hashtable *ht)
-// {
-//     size_t new_size = ht->size * 2;
-//     void **new_buckets = calloc(new_size, sizeof(void *));
+static int
+hashtable_expand(hashtable *ht)
+{
+    void **old_buckets = ht->buckets;
+    size_t new_size = ht->size * 2;
+    ht->buckets = calloc(new_size * 2, sizeof(void *));
+    ht->used = 0;
+    ht->size = new_size;
 
-//     for (size_t i = 0; i < ht->size; i++) {
-        
-//     }
-    
+    if (!ht->buckets)
+        return -1;
 
+    for (size_t idx = 0; idx < ht->size * 2; idx += 2)
+        if (old_buckets[idx])
+            hashtable_set(ht, ht->buckets[idx + 1], ht->buckets[idx], 1);
 
-
-
-// }
+    free(old_buckets);
+    return 0;
+}
 
 /* NULL on failure. */
 void *
@@ -96,6 +100,10 @@ hashtable_set(hashtable *ht, const char *key, void *item, bool is_replace)
 {
     if (!key)
         return 0;
+
+    if (ht->used * 2 > ht->size)
+        if (hashtable_expand(ht) < 0)
+            return -1;
 
     void **bucket = quadratic_probe(ht, key);
 
