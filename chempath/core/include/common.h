@@ -1,8 +1,9 @@
 #ifndef COMMON
 #define COMMON
 
+#include <stddef.h>
 
-typedef const char *(*fp_hash_key)(void *);
+typedef const char *(*fp_repr)(void *);
 
 struct node
 {
@@ -15,7 +16,7 @@ typedef struct
     size_t size;
     size_t used;
     struct node **buckets;
-    fp_hash_key hash_key;
+    fp_repr repr;
 } hashtable;
 
 typedef struct
@@ -25,7 +26,7 @@ typedef struct
 } stack;
 
 
-hashtable *hashtable_new(fp_hash_key fp);
+hashtable *hashtable_new(fp_repr fp);
 void      *hashtable_get(hashtable *ht, const char *key);
 int        hashtable_set(hashtable *ht, const char *key, void *item);
 
