@@ -2,8 +2,10 @@
 #define COMMON
 
 #include <stddef.h>
+#include <stdbool.h>
 
-typedef const char *(*fp_repr)(void *);
+/* Use this function to get a constant key (const char *) from any hash-able item (void *). */
+typedef const char *(*fp_cst_key)(void *);
 
 struct node
 {
@@ -15,8 +17,8 @@ typedef struct
 {
     size_t size;
     size_t used;
-    struct node **buckets;
-    fp_repr repr;
+    void **buckets;
+    fp_cst_key cst_key;
 } hashtable;
 
 typedef struct
@@ -26,9 +28,9 @@ typedef struct
 } stack;
 
 
-hashtable *hashtable_new(fp_repr fp);
+hashtable *hashtable_new(fp_cst_key cst_key);
 void      *hashtable_get(hashtable *ht, const char *key);
-int        hashtable_set(hashtable *ht, const char *key, void *item);
+int        hashtable_set(hashtable *ht, const char *key, void *item, bool is_replace);
 
 stack *stack_new();
 void   stack_del(stack *stk);

@@ -4,7 +4,7 @@
 #include "common.h"
 
 
-#define INIT_HASH_SIZE 2
+#define INIT_HASH_SIZE 1024
 #define cal_bucket_idx(key, mask) (__hash((const unsigned char *)(key)) & (size_t)(mask))
 
 /** ================================================================================================
@@ -25,10 +25,10 @@ __hash(const unsigned char *key)
 
 /* NULL on failure. */
 hashtable *
-hashtable_new(fp_repr fp)
+hashtable_new(fp_cst_key cst_key)
 {
     hashtable *ht = malloc(sizeof(hashtable));
-    struct node **buckets = calloc(INIT_HASH_SIZE, sizeof(struct node *));
+    void **buckets = calloc(INIT_HASH_SIZE, sizeof(void *));
 
     if (!(ht && buckets)) {
         free(ht);
@@ -38,73 +38,28 @@ hashtable_new(fp_repr fp)
 
     ht->buckets = buckets;
     ht->size = INIT_HASH_SIZE;
+    ht->cst_key = cst_key;
     ht->used = 0;
-    ht->repr = fp;
     return ht;
 }
 
-struct node **
-hashtable_get_bucket(hashtable *ht, const char *key)
+static void **
+quadratic_probe(hashtable *ht, const char *key)
 {
-    return ht->buckets + cal_bucket_idx(key, ht->size - 1);
-}
+    size_t hash = __hash((const unsigned char *)(key));
+    size_t mask = ht->size - 1;
+    void **bucket;
 
-static void *
-bucket_get(struct node **bucket, fp_repr repr, const char *key)
-{
-    struct node *nd = *bucket;
-    while (1) {
+    for (size_t i = 0; i < ht->size; i++) {
+        bucket = ht->buckets + ((hash + i * i) & mask);
 
-        if (!nd)
-            return NULL;
+        /* This key is not in the table, return the empty bucket. */
+        if (!(*bucket))
+            return bucket;
 
-        if (!strcmp(repr(nd->item), key))
-            return nd->item;
-
-        nd = nd->next;
-    }    
-}
-
-static int
-bucket_set(struct node **bucket, fp_repr repr, const char *key, void *item)
-{
-    struct node **pp = bucket, *nd = *bucket;
-    while (1) {
-
-        if (!nd) {
-            struct node *new = malloc(sizeof(struct node));
-
-            if (!new)
-                return -1;
-
-            new->item = item;
-            new->next = NULL;
-            *pp = new;
-
-            return 0;
-        }
-
-        if (!strcmp(repr(nd->item), key))
-            return 0;
-
-        pp = &nd->next;
-        nd = nd->next;
-    }
-}
-
-static void
-bucket_remove(struct node **bucket, fp_repr repr, const char *key)
-{
-    struct node **next, **pp = bucket;
-
-    while (*pp) {
-        if (!strcmp(repr((*pp)->item), key)) {
-            next = &((*pp)->next);
-            free(*pp);
-            *pp = *next;
-        }
-
-        pp = &((*pp)->next);
+        /* Matched, return the bucket */
+        if (!strcmp(ht->cst_key(*bucket), key))
+            return bucket;
     }
 }
 
@@ -112,7 +67,7 @@ bucket_remove(struct node **bucket, fp_repr repr, const char *key)
 void *
 hashtable_get(hashtable *ht, const char *key)
 {
-    return bucket_get(hashtable_get_bucket(ht, key), ht->repr, key);
+    return *quadratic_probe(ht, key);
 }
 
 /**
@@ -120,21 +75,34 @@ hashtable_get(hashtable *ht, const char *key)
  * return -1 on failure.
  */
 int
-hashtable_set(hashtable *ht, const char *key, void *item)
+hashtable_set(hashtable *ht, const char *key, void *item, bool is_replace)
 {
-    struct node **bucket = hashtable_get_bucket(ht, key);
-
-    if (!item) {
-        bucket_remove(bucket, ht->repr, key);
-        ht->used--;
+    if (!key)
         return 0;
+
+    void **bucket = quadratic_probe(ht, key);
+
+    if (item) {
+
+        /* Empty bucket. */
+        if (!(*bucket)) {
+            *bucket = item;
+            ht->used++;
+        }
+
+        /* Replace. */
+        if ((*bucket) && is_replace)
+            *bucket = item;
     }
 
-    if (bucket_set(bucket, ht->repr, key, item) < 0)
-        return -1;
+    else {
 
-    ht->used++;
-    return 0;
+        /* Clear the bucket */
+        if (bucket) {
+            *bucket = NULL;
+            ht->used--;
+        }
+    }
 }
 
 static void

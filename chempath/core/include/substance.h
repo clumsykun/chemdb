@@ -12,7 +12,7 @@ typedef struct
     size_t      size;
     size_t      used;
     size_t      pos;
-    fp_repr get_key;  /* Choose one char * property of substance as hashtable key. */
+    fp_cst_key get_key;  /* Choose one char * property of substance as hashtable key. */
 } db_substance;
 
 
