@@ -23,4 +23,5 @@ PERIODIC_TABLE = {
 
 __all__ = [
     'PERIODIC_TABLE',
+    'Element',
 ]

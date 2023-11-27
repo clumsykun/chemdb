@@ -1,7 +1,9 @@
-from pprint import pprint
-from chempath import PERIODIC_TABLE
+import unittest
+from chempath.element import *
 
-for symbol, elem in PERIODIC_TABLE.items():
-    print(symbol, elem, elem.chinese, elem.__module__)
 
+class TestElement(unittest.TestCase):
     
+    def test_Element(self):
+        self.assertEqual(Element(1).symbol, 'H')
+        pass

@@ -38,7 +38,7 @@ PyObject *Element_str(Element *self);
 PyObject *PyLong_num_element();
 
 PyObject *DBSubstance_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
-int       DBSubstance_init(DBSubstance *self);
+int       DBSubstance_init(DBSubstance *self, PyObject *args);
 void      DBSubstance_dealloc(DBSubstance *self);
 PyObject *DBSubstance_size(DBSubstance *self);
 

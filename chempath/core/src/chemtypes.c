@@ -111,7 +111,7 @@ DBSubstance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 int
-DBSubstance_init(DBSubstance *self)
+DBSubstance_init(DBSubstance *self, PyObject *args)
 {
     self->data = db_substance_new();
 
