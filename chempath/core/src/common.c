@@ -78,7 +78,7 @@ hashtable_expand(hashtable *ht)
 
     for (size_t idx = 0; idx < ht->size * 2; idx += 2)
         if (old_buckets[idx])
-            hashtable_set(ht, ht->buckets[idx + 1], ht->buckets[idx], 1);
+            hashtable_set(ht, old_buckets[idx + 1], old_buckets[idx], 1);
 
     free(old_buckets);
     return 0;
@@ -101,7 +101,7 @@ hashtable_set(hashtable *ht, const char *key, void *item, bool is_replace)
     if (!key)
         return 0;
 
-    if (ht->used * 2 > ht->size)
+    if (ht->used * 2 >= ht->size)
         if (hashtable_expand(ht) < 0)
             return -1;
 
