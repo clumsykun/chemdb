@@ -3,6 +3,10 @@
 #include "chemtypes.h"
 
 
+/** ================================================================================================
+ *  Element Definition.
+ */
+
 static PyGetSetDef Element_getset[] = {
     {"id",      (getter) Element_id,      (setter) NULL, "Id of chemical element.", NULL},
     {"name",    (getter) Element_name,    (setter) NULL, "Name of chemical element.", NULL},
@@ -27,6 +31,37 @@ static PyTypeObject type_Element = {
     .tp_getset    =              Element_getset,
 };
 
+
+/** ================================================================================================
+ *  Database substance Definition.
+ */
+
+static PyGetSetDef DBSubstance_getset[] = {
+    {"size", (getter) DBSubstance_size, (setter) NULL, "Size of database.", NULL},
+    {NULL}  /* Sentinel */
+};
+
+static PyTypeObject type_DBSubstance = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name      = "BaseDBSubstance",
+    .tp_doc       = PyDoc_STR("Database of substance."),
+    .tp_basicsize = sizeof(DBSubstance),
+    .tp_itemsize  = 0,
+    .tp_flags     = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_new       =              DBSubstance_new,
+    .tp_init      = (initproc)   DBSubstance_init,
+    .tp_dealloc   = (destructor) DBSubstance_dealloc,
+    // .tp_str       = (reprfunc)   DBSubstance_str,
+    // .tp_repr      = (reprfunc)   DBSubstance_str,
+    .tp_getset    =              DBSubstance_getset,
+};
+
+
+/** ================================================================================================
+ *  Package Definition.
+ */
+
+
 static PyMethodDef methods_module[] = {
     {"num_element", PyLong_num_element, METH_NOARGS, "Number of elements."},
     {NULL},
@@ -48,9 +83,20 @@ PyMODINIT_FUNC PyInit__chempath(void)
     if (PyType_Ready(&type_Element) < 0)
         return NULL;
 
+    if (PyType_Ready(&type_DBSubstance) < 0)
+        return NULL;
+
     Py_INCREF(&type_Element);
+    Py_INCREF(&type_DBSubstance);
+
     if (PyModule_AddObject(m, "BaseElement", (PyObject *) &type_Element) < 0) {
         Py_DECREF(&type_Element);
+        Py_DECREF(m);
+        return NULL;
+    }
+
+    if (PyModule_AddObject(m, "BaseDBSubstance", (PyObject *) &type_DBSubstance) < 0) {
+        Py_DECREF(&type_DBSubstance);
         Py_DECREF(m);
         return NULL;
     }

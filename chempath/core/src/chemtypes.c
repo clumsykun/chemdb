@@ -99,10 +99,10 @@ PyLong_num_element()
  */
 
 PyObject *
-Substance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+DBSubstance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    Substance *self;
-    self = (Substance *) type->tp_alloc(type, 0);
+    DBSubstance *self;
+    self = (DBSubstance *) type->tp_alloc(type, 0);
 
     if (self)
         return (PyObject *) self;
@@ -111,19 +111,28 @@ Substance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 int
-Substance_init(Substance *self, PyObject *args, PyObject *kwds)
+DBSubstance_init(DBSubstance *self)
 {
-    int id;
+    self->data = db_substance_new();
 
-    if (!PyArg_ParseTuple(args, "i", &id))
+    if (!self->data) {
+        PyErr_Format(PyExc_ValueError, "Substance database initialization failed!");
         return -1;
+    }
 
     return 0;
 }
 
 void
-Substance_dealloc(Substance *self)
+DBSubstance_dealloc(DBSubstance *self)
 {
-    self->data = NULL;
+    db_substance_dealloc(self->data);
     Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+PyObject *
+DBSubstance_size(DBSubstance *self)
+{
+    PyObject *o = PyLong_FromSize_t(self->data->ht->size);
+    return (PyObject *) o;
 }

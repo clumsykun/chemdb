@@ -4,6 +4,7 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "dtypes.h"
+#include "substance.h"
 
 
 typedef struct
@@ -12,12 +13,17 @@ typedef struct
     element *elem;
 } Element;
 
+// typedef struct
+// {
+//     PyObject_HEAD
+//     substance *data;
+// } Substance;
 
 typedef struct
 {
     PyObject_HEAD
-    substance *data;
-} Substance;
+    db_substance *data;
+} DBSubstance;
 
 
 PyObject *Element_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
@@ -31,9 +37,10 @@ PyObject *Element_symbol(Element *self, void *closure);
 PyObject *Element_str(Element *self);
 PyObject *PyLong_num_element();
 
-
-PyObject *Substance_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
-
+PyObject *DBSubstance_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
+int       DBSubstance_init(DBSubstance *self);
+void      DBSubstance_dealloc(DBSubstance *self);
+PyObject *DBSubstance_size(DBSubstance *self);
 
 
 #endif /* CHEMTYPES */
