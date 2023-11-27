@@ -41,6 +41,7 @@ PyObject *DBSubstance_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 int       DBSubstance_init(DBSubstance *self, PyObject *args);
 void      DBSubstance_dealloc(DBSubstance *self);
 PyObject *DBSubstance_size(DBSubstance *self);
+PyObject *DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds);
 
 
 #endif /* CHEMTYPES */

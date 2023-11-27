@@ -133,6 +133,32 @@ DBSubstance_dealloc(DBSubstance *self)
 PyObject *
 DBSubstance_size(DBSubstance *self)
 {
-    PyObject *o = PyLong_FromSize_t(self->data->ht->size);
+    PyObject *o = PyLong_FromSize_t(self->data->ht->used);
     return (PyObject *) o;
+}
+
+PyObject *
+DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds)
+{
+    const char *cas;
+    const char *smiles = NULL;
+    const char *name = NULL;
+    const char *chinese = NULL;
+    const char *formula = NULL;
+
+    static char *kwlist[] = {"cas", "smiles", "name", "chinese", "formula", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "s|zzzz", kwlist, 
+                                     &cas, &smiles, &name, &chinese, &formula))
+    {
+        return NULL;
+    }
+
+    if (strlen(cas) > MAX_CAS_LEN)
+        return NULL;
+
+    substance sbt = {cas, smiles, name, chinese, formula};
+
+    db_substance_add(self->data, &sbt);
+    Py_RETURN_NONE;
 }

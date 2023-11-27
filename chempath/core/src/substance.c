@@ -7,11 +7,38 @@
 #define INIT_DB_SIZE 1024
 
 
+/** ================================================================================================
+ *  Substance
+ */
+
 static const char *
 substance_cas(void *sbt)
 {
     return ((substance *)sbt)->cas;
 }
+
+// static const char *
+// substance_smiles(void *sbt)
+// {
+//     return ((substance *)sbt)->smiles;
+// }
+
+// static const char *
+// substance_name(void *sbt)
+// {
+//     return ((substance *)sbt)->name;
+// }
+
+// static const char *
+// substance_formula(void *sbt)
+// {
+//     return ((substance *)sbt)->formula;
+// }
+
+
+/** ================================================================================================
+ *  Database of substance
+ */
 
 /* NULL on failure */
 db_substance *
@@ -31,7 +58,7 @@ db_substance_new()
     return db;
 }
 
-/* Copy & insert sbt into db. */
+/* Copy & insert sbt into db, return -1 on failure. */
 int
 db_substance_add(db_substance *db, substance *sbt)
 {

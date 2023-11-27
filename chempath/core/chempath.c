@@ -41,6 +41,11 @@ static PyGetSetDef DBSubstance_getset[] = {
     {NULL}  /* Sentinel */
 };
 
+static PyMethodDef DBSubstance_methods[] = {
+    {"add_substance", (PyCFunction) DBSubstance_add_substance,  METH_VARARGS | METH_KEYWORDS, "Add substance to database."},
+    {NULL},
+};
+
 static PyTypeObject type_DBSubstance = {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name      = "BaseDBSubstance",
@@ -54,6 +59,7 @@ static PyTypeObject type_DBSubstance = {
     // .tp_str       = (reprfunc)   DBSubstance_str,
     // .tp_repr      = (reprfunc)   DBSubstance_str,
     .tp_getset    =              DBSubstance_getset,
+    .tp_methods   =              DBSubstance_methods,
 };
 
 
