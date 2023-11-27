@@ -93,10 +93,7 @@ hashtable_get(hashtable *ht, const char *key)
     return *quadratic_probe(ht, key);
 }
 
-/**
- * Create & insert node into hashtable without check if existed or not,
- * return -1 on failure.
- */
+/* Return -1 on failure. */
 int
 hashtable_set(hashtable *ht, const char *key, void *item, bool is_replace)
 {
@@ -186,6 +183,7 @@ stack_expand(stack *stk)
     return 0;
 }
 
+/* Return -1 on failure. */
 int
 stack_push(stack *stk, void *item)
 {
@@ -204,6 +202,10 @@ void *
 stack_pop(stack *stk)
 {
     void *item = stk->head[0];
+
+    if (!item)
+        return NULL;
+
     memcpy(stk->head, stk->head+1, (stk->used - 1) * sizeof(void *));
     stk->head[stk->used - 1] = 0;
     stk->used--;
