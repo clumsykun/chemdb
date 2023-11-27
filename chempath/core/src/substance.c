@@ -2,7 +2,6 @@
 #include <string.h>
 
 #include "dtypes.h"
-#include "common.h"
 #include "substance.h"
 
 #define INIT_DB_SIZE 1024
@@ -19,91 +18,63 @@ db_substance *
 db_substance_new()
 {
     db_substance *db = malloc(sizeof(db_substance));
-    substance **head = malloc(INIT_DB_SIZE * sizeof(substance *));
-    hashtable *ht    = hashtable_new(substance_cas);
-    stack *stk       = stack_new();
+    hashtable *ht    = hashtable_new();
 
-    if (!(db && head && ht && stk)) {
+    if (!(db && ht)) {
         free(db);
-        free(head);
         free(ht);
-        free(stk);
         return NULL;
     }
 
-    db->head = head;
     db->ht = ht;
-    db->vacant = stk;
-    db->size = INIT_DB_SIZE;
-    db->used = 0;
-    db->pos = 0;
+    db->fp_cst_key = substance_cas;
     return db;
-}
-
-static int
-db_substance_expand(db_substance *db)
-{
-    size_t new_size = db->size * 2;
-    substance *expanded = malloc(new_size * sizeof(substance *));
-
-    if (expanded == NULL)
-        return -1;
-
-    memcpy(expanded, db->head, db->size * sizeof(substance *));
-    free(db->head);
-
-    db->head = expanded;
-    db->size = new_size;
-    return 0;
 }
 
 /* Copy & insert sbt into db. */
 int
-db_substance_set(db_substance *db, substance *sbt)
+db_substance_add(db_substance *db, substance *sbt)
 {
-    substance *vacant;
-    const char *key = db->get_key(sbt);
+    const char *key = db->fp_cst_key(sbt);
+    substance *item = hashtable_get(db->ht, key);
 
-    /* existed */
-    if (hashtable_get(db->ht, key))
+    /* Exists then replace. */
+    if (item) {
+        memcpy(item, sbt, sizeof(substance));
         return 0;
+    }
 
-    /* no slots then expand */
-    if (db->used == db->size)
-        if (db_substance_expand(db))
-            return -1;
+    /* Create. */
+    item = malloc(sizeof(substance));
 
-    vacant = stack_pop(db->vacant);
-
-    /* vacant not available */
-    if (!vacant)
-        vacant = db->head + db->pos++;
-
-    if (hashtable_set(db->ht, key, vacant))
+    if (!(item && key))
         return -1;
 
-    memcpy(vacant, sbt, sizeof(substance));
-    db->used++;
+    memcpy(item, sbt, sizeof(substance));
+    hashtable_set(db->ht, key, item, true);
     return 0;
 }
 
+/* Return -1 on failure. */
 int
-db_substance_remove(db_substance *db, const char *key)
+db_substance_del(db_substance *db, const char *key)
 {
-    substance *sbt = hashtable_find(db->data_ht, key);
-
-    /* not found */
-    if (!sbt)
-        return 0;
-
-    hashtable_remove(db->data_ht, key);
-    stack_push(db->vacant, sbt);
-    memset(sbt, 0, sizeof(substance));
-    return 0;
+    return hashtable_set(db->ht, key, NULL, 1);
 }
 
+/* NULL on failure. */
 substance *
-db_substance_find(db_substance *db, const char *key)
+db_substance_get(db_substance *db, const char *key)
 {
-    return (substance *) hashtable_find(db->data_ht, key);
+    return (substance *) hashtable_get(db->ht, key);
+}
+
+void
+db_substance_dealloc(db_substance *db)
+{
+    for (size_t idx = 0; idx < db->ht->size * 2; idx += 2)
+        free(db->ht->buckets[idx]);
+
+    hashtable_dealloc(db->ht);
+    free(db);
 }

@@ -1,5 +1,7 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
+#include "dtypes.h"
+#include "element.h"
 #include "chemtypes.h"
 
 

@@ -3,8 +3,6 @@
 
 #include <stddef.h>
 
-#define NUM_ELEMENTS 118
-
 
 typedef struct
 {
@@ -50,10 +48,6 @@ typedef struct
     size_t *steps_tier;
     size_t  steps_num;
 } pathway;
-
-
-element *
-element_locate_by_id(size_t id);
 
 
 #endif /* DTYPES */

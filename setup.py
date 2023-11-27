@@ -5,8 +5,11 @@ _chempath = Extension(
     'chempath.core._chempath',
     sources = [
         'chempath/core/chempath.c',
-        'chempath/core/src/dtypes.c',
         'chempath/core/src/chemtypes.c',
+        'chempath/core/src/substance.c',
+        'chempath/core/src/element.c',
+        'chempath/core/src/common.c',
+        'chempath/core/src/hashtable.c',        
     ],
     include_dirs = ['chempath/core/include'],
 )

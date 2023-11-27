@@ -1,5 +1,5 @@
 #include "dtypes.h"
-
+#include "element.h"
 
 static element PERIODIC_TABLE[NUM_ELEMENTS] = {
     {1, "Hydrogen", "氢", "H", 1.007},
