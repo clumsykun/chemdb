@@ -23,7 +23,8 @@ typedef struct
 typedef struct
 {
     size_t size;
-    struct node *head;
+    size_t used;
+    void **head;
 } stack;
 
 

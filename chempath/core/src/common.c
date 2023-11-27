@@ -4,7 +4,7 @@
 #include "common.h"
 
 
-#define INIT_HASH_SIZE 4
+#define INIT_HASH_SIZE 1024
 #define INIT_STK_SIZE 4
 
 
@@ -67,14 +67,16 @@ hashtable_new()
 static int
 hashtable_expand(hashtable *ht)
 {
-    void **old_buckets = ht->buckets;
     size_t new_size = ht->size * 2;
-    ht->buckets = calloc(new_size * 2, sizeof(void *));
-    ht->used = 0;
-    ht->size = new_size;
+    void **old_buckets = ht->buckets;
+    void **new_buckets = calloc(new_size * 2, sizeof(void *));
 
-    if (!ht->buckets)
+    if (!new_buckets)
         return -1;
+
+    ht->buckets = new_buckets;
+    ht->size = new_size;
+    ht->used = 0;
 
     for (size_t idx = 0; idx < ht->size * 2; idx += 2)
         if (old_buckets[idx])
@@ -149,40 +151,51 @@ stack *
 stack_new()
 {
     stack *stk = malloc(sizeof(stack));
+    void **head = calloc(INIT_STK_SIZE, sizeof(void *));
 
-    if (!stk)
+    if (!(head && stk))
         return NULL;
 
-    stk->size = 0;
-    stk->head = NULL;
+    stk->size = INIT_STK_SIZE;
+    stk->used = 0;
+    stk->head = head;
 }
 
 void
 stack_del(stack *stk)
 {
-    struct node *tmp, *nd = stk->head;
-
-    while (nd) {
-        tmp = nd;
-        nd = nd->next;
-        free(tmp);
-    }
-
+    free(stk->head);
     free(stk);
+}
+
+static int
+stack_expand(stack *stk)
+{
+
+    size_t new_size = stk->size + INIT_STK_SIZE;
+    void **old_head = stk->head;
+    void **new_head = calloc(new_size, sizeof(void *));
+
+    if (!new_head)
+        return -1;
+
+    stk->head = new_head;
+    memcpy(stk->head, old_head, stk->size * sizeof(void *));
+    stk->size = new_size;
+    free(old_head);
+    return 0;
 }
 
 int
 stack_push(stack *stk, void *item)
 {
-    struct node *tmp, *nd = malloc(sizeof(struct node));
+    if (stk->used == stk->size)
+        if (stack_expand(stk) < 0)
+            return -1;
 
-    if (!nd)
-        return -1;
-
-    nd->next = stk->head;
-    nd->item = item;
-    stk->head = nd;
-    stk->size++;
+    memcpy(stk->head+1, stk->head, stk->used * sizeof(void *));
+    stk->head[0] = item;
+    stk->used++;
     return 0;
 }
 
@@ -190,15 +203,9 @@ stack_push(stack *stk, void *item)
 void *
 stack_pop(stack *stk)
 {
-    struct node *nd = stk->head;
-
-    if (!nd)
-        return NULL;
-
-    void *item = nd->item;
-    stk->head = nd->next;
-    stk->size--;
-
-    free(nd);
+    void *item = stk->head[0];
+    memcpy(stk->head, stk->head+1, (stk->used - 1) * sizeof(void *));
+    stk->head[stk->used - 1] = 0;
+    stk->used--;
     return item;
 }
