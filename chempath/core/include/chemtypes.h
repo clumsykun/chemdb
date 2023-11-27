@@ -13,11 +13,11 @@ typedef struct
     element *elem;
 } Element;
 
-// typedef struct
-// {
-//     PyObject_HEAD
-//     substance *data;
-// } Substance;
+typedef struct
+{
+    PyObject_HEAD
+    substance *data;
+} Substance;
 
 typedef struct
 {
@@ -36,6 +36,10 @@ PyObject *Element_mass(Element *self, void *closure);
 PyObject *Element_symbol(Element *self, void *closure);
 PyObject *Element_str(Element *self);
 PyObject *PyLong_num_element();
+
+PyObject *Substance_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
+int       Substance_init(Substance *self, PyObject *args);
+void      Substance_dealloc(Substance *self);
 
 PyObject *DBSubstance_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 int       DBSubstance_init(DBSubstance *self, PyObject *args);

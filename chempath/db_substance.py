@@ -1,4 +1,4 @@
-from .core import BaseDBSubstance
+from .core import BaseDBSubstance, BaseSubstance
 
 
 class DBSubstance(BaseDBSubstance):
@@ -21,3 +21,4 @@ class DBSubstance(BaseDBSubstance):
             chinese = chem_chinese,
             formula = formula,
         )
+        self.cache[cas] = BaseSubstance(self, cas)

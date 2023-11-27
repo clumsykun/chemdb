@@ -16,7 +16,7 @@ static PyGetSetDef Element_getset[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyTypeObject type_Element = {
+PyTypeObject type_Element = {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name      = "BaseElement",
     .tp_doc       = PyDoc_STR("Chemical Element"),
@@ -29,6 +29,27 @@ static PyTypeObject type_Element = {
     .tp_str       = (reprfunc)   Element_str,
     .tp_repr      = (reprfunc)   Element_str,
     .tp_getset    =              Element_getset,
+};
+
+
+/** ================================================================================================
+ *  Substance Definition.
+ */
+
+PyTypeObject type_Substance = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name      = "BaseSubstance",
+    .tp_doc       = PyDoc_STR("Substance."),
+    .tp_basicsize = sizeof(Substance),
+    .tp_itemsize  = 0,
+    .tp_flags     = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_new       =              Substance_new,
+    .tp_init      = (initproc)   Substance_init,
+    .tp_dealloc   = (destructor) Substance_dealloc,
+    // .tp_str       = (reprfunc)   Substance_str,
+    // .tp_repr      = (reprfunc)   Substance_str,
+    // .tp_getset    =              Substance_getset,
+    // .tp_methods   =              Substance_methods,
 };
 
 
@@ -46,7 +67,7 @@ static PyMethodDef DBSubstance_methods[] = {
     {NULL},
 };
 
-static PyTypeObject type_DBSubstance = {
+PyTypeObject type_DBSubstance = {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name      = "BaseDBSubstance",
     .tp_doc       = PyDoc_STR("Database of substance."),
@@ -92,8 +113,13 @@ PyMODINIT_FUNC PyInit__chempath(void)
     if (PyType_Ready(&type_DBSubstance) < 0)
         return NULL;
 
+    if (PyType_Ready(&type_Substance) < 0)
+        return NULL;
+
+
     Py_INCREF(&type_Element);
     Py_INCREF(&type_DBSubstance);
+    Py_INCREF(&type_Substance);
 
     if (PyModule_AddObject(m, "BaseElement", (PyObject *) &type_Element) < 0) {
         Py_DECREF(&type_Element);
@@ -103,6 +129,12 @@ PyMODINIT_FUNC PyInit__chempath(void)
 
     if (PyModule_AddObject(m, "BaseDBSubstance", (PyObject *) &type_DBSubstance) < 0) {
         Py_DECREF(&type_DBSubstance);
+        Py_DECREF(m);
+        return NULL;
+    }
+
+    if (PyModule_AddObject(m, "BaseSubstance", (PyObject *) &type_Substance) < 0) {
+        Py_DECREF(&type_Substance);
         Py_DECREF(m);
         return NULL;
     }

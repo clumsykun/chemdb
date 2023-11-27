@@ -99,6 +99,57 @@ PyLong_num_element()
  */
 
 PyObject *
+Substance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Substance *self;
+    self = (Substance *) type->tp_alloc(type, 0);
+
+    if (self)
+        return (PyObject *) self;
+    else
+        return NULL;
+}
+
+int
+Substance_init(Substance *self, PyObject *args)
+{
+    DBSubstance *db;
+    const char *key;
+
+    if (!PyArg_ParseTuple(args, "Os", &db, &key))
+        return -1;
+
+    // if (!Py_IS_TYPE(db, &type_DBSubstance)) {
+
+    // printf("%s\n", Py_TYPE(db)->tp_name);
+    if (strcmp(Py_TYPE(db)->tp_name, "DBSubstance")) {
+        PyErr_Format(PyExc_ValueError, "Invalid DBSubstance object!");
+        return -1;        
+    }
+
+    substance *sbt = db_substance_get(db->data, key);
+
+    if (!sbt) {
+        PyErr_Format(PyExc_ValueError, "Invalid Substance key!");
+        return -1;
+    }
+
+    self->data = sbt;
+    return 0;
+}
+
+void
+Substance_dealloc(Substance *self)
+{
+    self->data = NULL;
+    Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+/* =================================================================================================
+ * Database of substance Definition
+ */
+
+PyObject *
 DBSubstance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     DBSubstance *self;
@@ -162,3 +213,4 @@ DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds)
     db_substance_add(self->data, &sbt);
     Py_RETURN_NONE;
 }
+
