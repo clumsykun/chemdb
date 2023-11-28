@@ -39,3 +39,26 @@ class TestDBSubstance(unittest.TestCase):
             formula = formula,
         )
         self.assertEqual(self.db.size, size_before)
+
+    def test_empty_identity(self):
+
+        cas = None
+        smiles = 'test_smiles'
+        chem_name = 'test_name'
+        chem_chinese = '测试'
+        formula = 'test_formula'
+
+        size_before = self.db.size
+        # self.assertRaises(
+        #     TypeError,
+        #     self.db.add_substance(
+        #         cas = cas,
+        #         smiles = smiles,
+        #         chem_name = chem_name,
+        #         chem_chinese = chem_chinese,
+        #         formula = formula
+        #     )
+        # )
+
+        self.assertEqual(self.db.size, size_before)
+        print(self.db.data)

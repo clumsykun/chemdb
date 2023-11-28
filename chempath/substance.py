@@ -60,12 +60,12 @@ class DBSubstance(BaseDBSubstance):
     def size(self) -> int:
         return super().size
 
-    def add_substance(self, cas: str, smiles: str,
+    def add_substance(self, smiles: str, cas: str,
                       chem_name: str, chem_chinese: str,
                       formula: str) -> None:
         super().add_substance(
-            cas,
-            smiles = smiles,
+            smiles,
+            cas = cas,
             name = chem_name,
             chinese = chem_chinese,
             formula = formula,

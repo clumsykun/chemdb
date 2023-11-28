@@ -237,22 +237,23 @@ DBSubstance_size(DBSubstance *self)
 PyObject *
 DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds)
 {
-    const char *cas;
-    const char *smiles = NULL;
+    const char *smiles;
+    const char *cas = NULL;
     const char *name = NULL;
     const char *chinese = NULL;
     const char *formula = NULL;
 
-    static char *kwlist[] = {"cas", "smiles", "name", "chinese", "formula", NULL};
+    static char *kwlist[] = {"smiles", "cas", "name", "chinese", "formula", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "s|zzzz", kwlist, 
-                                     &cas, &smiles, &name, &chinese, &formula))
+                                     &smiles, &cas, &name, &chinese, &formula))
     {
         return NULL;
     }
 
-    if (strlen(cas) > MAX_CAS_LEN)
-        return NULL;
+    if (cas)
+        if (strlen(cas) > MAX_CAS_LEN)
+            return NULL;
 
     substance sbt = {cas, smiles, name, chinese, formula};
 
