@@ -12,7 +12,7 @@ class TestDBSubstance(unittest.TestCase):
         cas = '10094-36-7'
         smiles = 'C(CC(OCC)=O)C1CCCCC1'
         chem_name = 'Ethyl cyclohexanepropionate'
-        chem_chinese = None
+        chem_chinese = '环己基丙酸乙酯'
         formula = 'C[11]H[20]O[2]'
 
         self.db.add_substance(
@@ -32,3 +32,4 @@ class TestDBSubstance(unittest.TestCase):
 
         print(self.db)
         print(self.db.cache)
+        print(substance.to_dict())

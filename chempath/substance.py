@@ -18,6 +18,15 @@ class Substance(BaseSubstance):
         self.chem_name: str
         self.chem_chinese: str
         self.formula: str
+        
+    def to_dict(self):
+        return {
+            'cas': self.cas,
+            'smiles': self.smiles,
+            'chem_name': self.chem_name,
+            'chem_chinese': self.chem_chinese,
+            'formula': self.formula,
+        }
 
 
 class DBSubstance(BaseDBSubstance):

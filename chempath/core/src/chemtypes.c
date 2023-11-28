@@ -56,15 +56,13 @@ Element_id(Element *self, void *closure)
 PyObject *
 Element_name(Element *self, void *closure)
 {
-    PyObject *o = PyUnicode_FromString(self->elem->name);
-    return (PyObject *) o;
+    return PyUnicode_FromString(self->elem->name);;
 }
 
 PyObject *
 Element_chinese(Element *self, void *closure)
 {
-    PyObject *o = PyUnicode_FromString(self->elem->chinese);
-    return (PyObject *) o;
+    return PyUnicode_FromString(self->elem->chinese);
 }
 
 PyObject *
@@ -77,8 +75,7 @@ Element_mass(Element *self, void *closure)
 PyObject *
 Element_symbol(Element *self, void *closure)
 {
-    PyObject *o = PyUnicode_FromString(self->elem->symbol);
-    return (PyObject *) o;
+    return PyUnicode_FromString(self->elem->symbol);
 }
 
 PyObject *
