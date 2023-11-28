@@ -36,6 +36,15 @@ PyTypeObject type_Element = {
  *  Substance Definition.
  */
 
+static PyGetSetDef Substance_getset[] = {
+    {"cas",          (getter) Substance_cas,     (setter) NULL, "CAS of chemical substance.", NULL},
+    {"smiles",       (getter) Substance_smiles,  (setter) NULL, "SMILES of chemical substance.", NULL},
+    {"chem_name",    (getter) Substance_name,    (setter) NULL, "Name of chemical substance.", NULL},
+    {"chem_chinese", (getter) Substance_chinese, (setter) NULL, "Chinese name of chemical substance.", NULL},    
+    {"formula",      (getter) Substance_formula, (setter) NULL, "Formula of chemical substance.", NULL},
+    {NULL}  /* Sentinel */
+};
+
 PyTypeObject type_Substance = {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name      = "BaseSubstance",
@@ -46,9 +55,9 @@ PyTypeObject type_Substance = {
     .tp_new       =              Substance_new,
     .tp_init      = (initproc)   Substance_init,
     .tp_dealloc   = (destructor) Substance_dealloc,
-    // .tp_str       = (reprfunc)   Substance_str,
-    // .tp_repr      = (reprfunc)   Substance_str,
-    // .tp_getset    =              Substance_getset,
+    .tp_str       = (reprfunc)   Substance_str,
+    .tp_repr      = (reprfunc)   Substance_str,
+    .tp_getset    =              Substance_getset,
     // .tp_methods   =              Substance_methods,
 };
 
@@ -77,8 +86,8 @@ PyTypeObject type_DBSubstance = {
     .tp_new       =              DBSubstance_new,
     .tp_init      = (initproc)   DBSubstance_init,
     .tp_dealloc   = (destructor) DBSubstance_dealloc,
-    // .tp_str       = (reprfunc)   DBSubstance_str,
-    // .tp_repr      = (reprfunc)   DBSubstance_str,
+    .tp_str       = (reprfunc)   DBSubstance_str,
+    .tp_repr      = (reprfunc)   DBSubstance_str,
     .tp_getset    =              DBSubstance_getset,
     .tp_methods   =              DBSubstance_methods,
 };

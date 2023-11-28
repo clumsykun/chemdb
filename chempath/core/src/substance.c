@@ -17,23 +17,23 @@ substance_cas(void *sbt)
     return ((substance *)sbt)->cas;
 }
 
-// static const char *
-// substance_smiles(void *sbt)
-// {
-//     return ((substance *)sbt)->smiles;
-// }
+static const char *
+substance_smiles(void *sbt)
+{
+    return ((substance *)sbt)->smiles;
+}
 
-// static const char *
-// substance_name(void *sbt)
-// {
-//     return ((substance *)sbt)->name;
-// }
+static const char *
+substance_name(void *sbt)
+{
+    return ((substance *)sbt)->name;
+}
 
-// static const char *
-// substance_formula(void *sbt)
-// {
-//     return ((substance *)sbt)->formula;
-// }
+static const char *
+substance_formula(void *sbt)
+{
+    return ((substance *)sbt)->formula;
+}
 
 
 /** ================================================================================================
@@ -104,4 +104,22 @@ db_substance_dealloc(db_substance *db)
 
     hashtable_dealloc(db->ht);
     free(db);
+}
+
+const char *
+db_substance_key_string(db_substance *db)
+{
+    if (db->fp_cst_key == substance_cas)
+        return "cas";
+
+    else if (db->fp_cst_key == substance_smiles)
+        return "smiles";
+
+    else if (db->fp_cst_key == substance_name)
+        return "name";
+
+    else if (db->fp_cst_key == substance_formula)
+        return "formula";
+    else
+        return "error";  /* Should never get here! */
 }

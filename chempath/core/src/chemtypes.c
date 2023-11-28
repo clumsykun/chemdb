@@ -119,12 +119,9 @@ Substance_init(Substance *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "Os", &db, &key))
         return -1;
 
-    // if (!Py_IS_TYPE(db, &type_DBSubstance)) {
-
-    // printf("%s\n", Py_TYPE(db)->tp_name);
     if (strcmp(Py_TYPE(db)->tp_name, "DBSubstance")) {
-        PyErr_Format(PyExc_ValueError, "Invalid DBSubstance object!");
-        return -1;        
+        PyErr_Format(PyExc_TypeError, "Except Instance of DBSubstance but get Instance of %s!", Py_TYPE(db)->tp_name);
+        return -1;
     }
 
     substance *sbt = db_substance_get(db->data, key);
@@ -143,6 +140,52 @@ Substance_dealloc(Substance *self)
 {
     self->data = NULL;
     Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+PyObject *
+Substance_str(Substance *self)
+{
+    return PyUnicode_FromFormat("<Substance: (%s) %s>", self->data->cas, self->data->name);
+}
+
+PyObject *Substance_cas(Substance *self)
+{
+    if (self->data->name)
+        return PyUnicode_FromString(self->data->cas);
+    else
+        Py_RETURN_NONE;
+}
+
+PyObject *Substance_smiles(Substance *self)
+{
+    if (self->data->name)
+        return PyUnicode_FromString(self->data->smiles);
+    else
+        Py_RETURN_NONE;
+}
+
+PyObject *Substance_name(Substance *self)
+{
+    if (self->data->name)
+        return PyUnicode_FromString(self->data->name);
+    else
+        Py_RETURN_NONE;
+}
+
+PyObject *Substance_chinese(Substance *self)
+{
+    if (self->data->chinese)
+        return PyUnicode_FromString(self->data->chinese);
+    else
+        Py_RETURN_NONE;
+}
+
+PyObject *Substance_formula(Substance *self)
+{
+    if (self->data->name)
+        return PyUnicode_FromString(self->data->formula);
+    else
+        Py_RETURN_NONE;
 }
 
 /* =================================================================================================
@@ -182,6 +225,12 @@ DBSubstance_dealloc(DBSubstance *self)
 }
 
 PyObject *
+DBSubstance_str(DBSubstance *self)
+{
+    return PyUnicode_FromFormat("<DBSubstance, identity by %s>", db_substance_key_string(self->data));
+}
+
+PyObject *
 DBSubstance_size(DBSubstance *self)
 {
     PyObject *o = PyLong_FromSize_t(self->data->ht->used);
@@ -213,4 +262,3 @@ DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds)
     db_substance_add(self->data, &sbt);
     Py_RETURN_NONE;
 }
-

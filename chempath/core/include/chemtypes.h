@@ -40,10 +40,17 @@ PyObject *PyLong_num_element();
 PyObject *Substance_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 int       Substance_init(Substance *self, PyObject *args);
 void      Substance_dealloc(Substance *self);
+PyObject *Substance_str(Substance *self);
+PyObject *Substance_cas(Substance *self);
+PyObject *Substance_smiles(Substance *self);
+PyObject *Substance_name(Substance *self);
+PyObject *Substance_chinese(Substance *self);
+PyObject *Substance_formula(Substance *self);
 
 PyObject *DBSubstance_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 int       DBSubstance_init(DBSubstance *self, PyObject *args);
 void      DBSubstance_dealloc(DBSubstance *self);
+PyObject *DBSubstance_str(DBSubstance *self);
 PyObject *DBSubstance_size(DBSubstance *self);
 PyObject *DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds);
 
