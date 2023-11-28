@@ -19,7 +19,7 @@ class Substance(BaseSubstance):
         self.chem_chinese: str
         self.formula: str
         
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return {
             'cas': self.cas,
             'smiles': self.smiles,
@@ -33,7 +33,7 @@ class DBSubstance(BaseDBSubstance):
     
     def __init__(self):
         super().__init__()
-        self.cache: dict = {}
+        self.data: dict = {}
 
     @property
     def size(self) -> int:
@@ -49,7 +49,7 @@ class DBSubstance(BaseDBSubstance):
             chinese = chem_chinese,
             formula = formula,
         )
-        self.cache[cas] = Substance(self, cas)
+        self.data[cas] = Substance(self, cas)
 
     def get_substance(self, identity_key: str) -> Substance:
-        return self.cache.get(identity_key)
+        return self.data.get(identity_key)

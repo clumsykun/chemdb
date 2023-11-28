@@ -31,5 +31,5 @@ class TestDBSubstance(unittest.TestCase):
         self.assertEqual(substance.formula, formula)
 
         print(self.db)
-        print(self.db.cache)
+        print(self.db.data)
         print(substance.to_dict())
