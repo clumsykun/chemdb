@@ -4,7 +4,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-
+/**
+ * Buckets stores: val1, key1, (NULL),..., val2, key2, ...
+ */
 typedef struct
 {
     size_t size;

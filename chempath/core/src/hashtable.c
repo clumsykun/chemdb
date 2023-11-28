@@ -65,6 +65,7 @@ hashtable_new()
 static int
 hashtable_expand(hashtable *ht)
 {
+    size_t old_size = ht->size;
     size_t new_size = ht->size * 2;
     void **old_buckets = ht->buckets;
     void **new_buckets = calloc(new_size * 2, sizeof(void *));
@@ -76,15 +77,15 @@ hashtable_expand(hashtable *ht)
     ht->size = new_size;
     ht->used = 0;
 
-    for (size_t idx = 0; idx < ht->size * 2; idx += 2)
-        if (old_buckets[idx])
-            hashtable_set(ht, old_buckets[idx + 1], old_buckets[idx], 1);
+    for (size_t i = 0; i < old_size; i++)
+        if (old_buckets[2 * i])
+            hashtable_set(ht, old_buckets[2 * i + 1], old_buckets[2 * i], 1);
 
     free(old_buckets);
     return 0;
 }
 
-/* NULL on failure. */
+/* Return NULL on failure. */
 void *
 hashtable_get(hashtable *ht, const char *key)
 {

@@ -1,3 +1,5 @@
+import csv
+from os.path import abspath, dirname
 from .core import BaseDBSubstance, BaseSubstance
 
 
@@ -18,7 +20,7 @@ class Substance(BaseSubstance):
         self.chem_name: str
         self.chem_chinese: str
         self.formula: str
-        
+
     def to_dict(self) -> dict:
         return {
             'cas': self.cas,
@@ -30,10 +32,29 @@ class Substance(BaseSubstance):
 
 
 class DBSubstance(BaseDBSubstance):
-    
-    def __init__(self):
+
+    def __init__(self, load_basic_substance: bool = True):
         super().__init__()
         self.data: dict = {}
+        
+        if load_basic_substance:
+            self._load_basic_substance()
+
+    def _load_basic_substance(self):
+        with open(abspath(dirname(__file__)) + '/data/substance.csv') as f:
+            reader = csv.reader(f)
+
+            for idx, (cas, chem_chinese, chem_name, smiles, formula) in enumerate(reader):
+                if idx == 0:
+                    continue
+
+                self.add_substance(
+                    cas = cas,
+                    smiles=smiles,
+                    chem_name=chem_name,
+                    chem_chinese=chem_chinese,
+                    formula=formula,
+                )
 
     @property
     def size(self) -> int:

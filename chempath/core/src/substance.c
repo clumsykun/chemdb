@@ -11,26 +11,72 @@
  *  Substance
  */
 
+/* Return NULL on failure */
+static substance *
+substance_new(const char *cas,
+              const char *smiles,
+              const char *name,
+              const char *chinese,
+              const char *formula)
+{
+    substance *sbt = malloc(sizeof(substance));
+    char *cp_cas = malloc(strlen(cas) + 1);
+    char *cp_smiles = malloc(strlen(smiles) + 1);
+    char *cp_name = malloc(strlen(name) + 1);
+    char *cp_chinese = malloc(strlen(chinese) + 1);
+    char *cp_formula = malloc(strlen(formula) + 1);
+
+    if (!(sbt && cp_cas && cp_smiles && cp_name && cp_chinese && cp_formula)) {
+        free(sbt);
+        free(cp_cas);
+        free(cp_smiles);
+        free(cp_name);
+        free(cp_chinese);
+        free(cp_formula);
+        return NULL;
+    }
+
+    strcpy(cp_cas, cas);
+    strcpy(cp_smiles, smiles);
+    strcpy(cp_name, name);
+    strcpy(cp_chinese, chinese);
+    strcpy(cp_formula, formula);
+    substance cp_sbt = {cp_cas, cp_smiles, cp_name, cp_chinese, cp_formula};
+    memcpy(sbt, &cp_sbt, sizeof(substance));
+    return sbt;
+}
+
+void
+substance_dealloc(substance *sbt)
+{
+    free((void *)sbt->cas);
+    free((void *)sbt->smiles);
+    free((void *)sbt->name);
+    free((void *)sbt->chinese);
+    free((void *)sbt->formula);
+    free(sbt);
+}
+
 static const char *
-substance_cas(void *sbt)
+identity_cas(void *sbt)
 {
     return ((substance *)sbt)->cas;
 }
 
 static const char *
-substance_smiles(void *sbt)
+identity_smiles(void *sbt)
 {
     return ((substance *)sbt)->smiles;
 }
 
 static const char *
-substance_name(void *sbt)
+identity_name(void *sbt)
 {
     return ((substance *)sbt)->name;
 }
 
 static const char *
-substance_formula(void *sbt)
+identity_formula(void *sbt)
 {
     return ((substance *)sbt)->formula;
 }
@@ -54,7 +100,7 @@ db_substance_new()
     }
 
     db->ht = ht;
-    db->fp_cst_key = substance_cas;
+    db->fp_identity = identity_cas;
     return db;
 }
 
@@ -62,38 +108,51 @@ db_substance_new()
 int
 db_substance_add(db_substance *db, substance *sbt)
 {
-    const char *key = db->fp_cst_key(sbt);
-    substance *item = hashtable_get(db->ht, key);
+    const char *key = db->fp_identity(sbt);
 
-    /* Exists then replace. */
-    if (item) {
-        memcpy(item, sbt, sizeof(substance));
-        return 0;
-    }
-
-    /* Create. */
-    item = malloc(sizeof(substance));
-
-    if (!(item && key))
+    /* Identity key must not be NULL! */
+    if (!key)
         return -1;
 
-    memcpy(item, sbt, sizeof(substance));
-    hashtable_set(db->ht, key, item, true);
-    return 0;
+    substance *item = hashtable_get(db->ht, key);
+
+    /* Exists then delete first. */
+    if (item)
+        substance_dealloc(item);
+
+    item = substance_new(
+        sbt->cas,
+        sbt->smiles,
+        sbt->name,
+        sbt->chinese,
+        sbt->formula
+    );
+
+    if (!item)
+        return -1;
+
+    return hashtable_set(db->ht, key, item, true);
 }
 
 /* Return -1 on failure. */
 int
 db_substance_del(db_substance *db, const char *key)
 {
-    return hashtable_set(db->ht, key, NULL, 1);
+    substance *item = hashtable_get(db->ht, key);
+
+    if (item) {
+        substance_dealloc(item);
+        return hashtable_set(db->ht, key, NULL, 1);
+    }
+
+    return 0;
 }
 
 /* NULL on failure. */
 substance *
 db_substance_get(db_substance *db, const char *key)
 {
-    return (substance *) hashtable_get(db->ht, key);
+    return hashtable_get(db->ht, key);
 }
 
 void
@@ -107,18 +166,18 @@ db_substance_dealloc(db_substance *db)
 }
 
 const char *
-db_substance_key_string(db_substance *db)
+db_substance_identity_string(db_substance *db)
 {
-    if (db->fp_cst_key == substance_cas)
+    if (db->fp_identity == identity_cas)
         return "cas";
 
-    else if (db->fp_cst_key == substance_smiles)
+    else if (db->fp_identity == identity_smiles)
         return "smiles";
 
-    else if (db->fp_cst_key == substance_name)
+    else if (db->fp_identity == identity_name)
         return "name";
 
-    else if (db->fp_cst_key == substance_formula)
+    else if (db->fp_identity == identity_formula)
         return "formula";
     else
         return "error";  /* Should never get here! */

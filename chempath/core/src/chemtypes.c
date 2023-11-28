@@ -224,7 +224,7 @@ DBSubstance_dealloc(DBSubstance *self)
 PyObject *
 DBSubstance_str(DBSubstance *self)
 {
-    return PyUnicode_FromFormat("<DBSubstance, identity by %s>", db_substance_key_string(self->data));
+    return PyUnicode_FromFormat("<DBSubstance, identity by %s>", db_substance_identity_string(self->data));
 }
 
 PyObject *
@@ -256,6 +256,10 @@ DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds)
 
     substance sbt = {cas, smiles, name, chinese, formula};
 
-    db_substance_add(self->data, &sbt);
+    if (db_substance_add(self->data, &sbt) < 0) {
+        PyErr_Format(PyExc_ValueError, "Insert substance to database failed!");
+        return NULL;
+    }
+
     Py_RETURN_NONE;
 }
