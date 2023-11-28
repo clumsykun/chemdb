@@ -237,16 +237,16 @@ DBSubstance_size(DBSubstance *self)
 PyObject *
 DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds)
 {
-    const char *smiles;
+    const char *name;
+    const char *smiles = NULL;
     const char *cas = NULL;
-    const char *name = NULL;
-    const char *chinese = NULL;
     const char *formula = NULL;
+    const char *chinese = NULL;
 
-    static char *kwlist[] = {"smiles", "cas", "name", "chinese", "formula", NULL};
+    static char *kwlist[] = {"name", "cas", "smiles", "formula", "chinese", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "s|zzzz", kwlist, 
-                                     &smiles, &cas, &name, &chinese, &formula))
+                                     &name, &cas, &smiles, &formula, &chinese))
     {
         return NULL;
     }
@@ -256,6 +256,14 @@ DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds)
             return NULL;
 
     substance sbt = {cas, smiles, name, chinese, formula};
+
+    if (!self->data->fp_identity(&sbt)) {
+        PyErr_Format(
+            PyExc_ValueError,
+            "Database use '%s' as identity key, which must not be None!",
+            self->data->identity_name);
+        return NULL;
+    }
 
     if (db_substance_add(self->data, &sbt) < 0) {
         PyErr_Format(PyExc_ValueError, "Insert substance to database failed!");

@@ -18,7 +18,7 @@ static PyGetSetDef Element_getset[] = {
 
 PyTypeObject type_Element = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name      = "BaseElement",
+    .tp_name      = "CElement",
     .tp_doc       = PyDoc_STR("Chemical Element"),
     .tp_basicsize = sizeof(Element),
     .tp_itemsize  = 0,
@@ -37,17 +37,17 @@ PyTypeObject type_Element = {
  */
 
 static PyGetSetDef Substance_getset[] = {
-    {"cas",          (getter) Substance_cas,     (setter) NULL, "CAS of chemical substance.", NULL},
-    {"smiles",       (getter) Substance_smiles,  (setter) NULL, "SMILES of chemical substance.", NULL},
-    {"chem_name",    (getter) Substance_name,    (setter) NULL, "Name of chemical substance.", NULL},
-    {"chem_chinese", (getter) Substance_chinese, (setter) NULL, "Chinese name of chemical substance.", NULL},    
-    {"formula",      (getter) Substance_formula, (setter) NULL, "Formula of chemical substance.", NULL},
+    {"name",    (getter) Substance_name,    (setter) NULL, "Name of chemical substance.", NULL},
+    {"cas",     (getter) Substance_cas,     (setter) NULL, "CAS of chemical substance.", NULL},
+    {"smiles",  (getter) Substance_smiles,  (setter) NULL, "SMILES of chemical substance.", NULL},
+    {"formula", (getter) Substance_formula, (setter) NULL, "Formula of chemical substance.", NULL},
+    {"chinese", (getter) Substance_chinese, (setter) NULL, "Chinese name of chemical substance.", NULL},    
     {NULL}  /* Sentinel */
 };
 
 PyTypeObject type_Substance = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name      = "BaseSubstance",
+    .tp_name      = "CSubstance",
     .tp_doc       = PyDoc_STR("Substance."),
     .tp_basicsize = sizeof(Substance),
     .tp_itemsize  = 0,
@@ -78,7 +78,7 @@ static PyMethodDef DBSubstance_methods[] = {
 
 PyTypeObject type_DBSubstance = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name      = "BaseDBSubstance",
+    .tp_name      = "CDBSubstance",
     .tp_doc       = PyDoc_STR("Database of substance."),
     .tp_basicsize = sizeof(DBSubstance),
     .tp_itemsize  = 0,
@@ -130,19 +130,19 @@ PyMODINIT_FUNC PyInit__chempath(void)
     Py_INCREF(&type_DBSubstance);
     Py_INCREF(&type_Substance);
 
-    if (PyModule_AddObject(m, "BaseElement", (PyObject *) &type_Element) < 0) {
+    if (PyModule_AddObject(m, "CElement", (PyObject *) &type_Element) < 0) {
         Py_DECREF(&type_Element);
         Py_DECREF(m);
         return NULL;
     }
 
-    if (PyModule_AddObject(m, "BaseDBSubstance", (PyObject *) &type_DBSubstance) < 0) {
+    if (PyModule_AddObject(m, "CDBSubstance", (PyObject *) &type_DBSubstance) < 0) {
         Py_DECREF(&type_DBSubstance);
         Py_DECREF(m);
         return NULL;
     }
 
-    if (PyModule_AddObject(m, "BaseSubstance", (PyObject *) &type_Substance) < 0) {
+    if (PyModule_AddObject(m, "CSubstance", (PyObject *) &type_Substance) < 0) {
         Py_DECREF(&type_Substance);
         Py_DECREF(m);
         return NULL;

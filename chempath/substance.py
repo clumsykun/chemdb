@@ -1,37 +1,37 @@
 import csv
 from os.path import abspath, dirname
-from .core import BaseDBSubstance, BaseSubstance
+from .core import CDBSubstance, CSubstance
 
 
-class Substance(BaseSubstance):
+class Substance(CSubstance):
     """
     Wrapper of data from target substance database with identity key.
 
     Args:
         db (DBSubstance): target substance database.
-        key (str): identity key.
+        identity (str): one of ('name', 'cas', 'smiles', 'formula').
     """
 
-    def __init__(self, db, key):
-        super().__init__(db, key)
+    def __init__(self, db, identity):
+        super().__init__(db, identity)
 
+        self.name: str
         self.cas: str
         self.smiles: str
-        self.chem_name: str
-        self.chem_chinese: str
         self.formula: str
+        self.chinese: str
 
     def to_dict(self) -> dict:
         return {
+            'name': self.name,
             'cas': self.cas,
             'smiles': self.smiles,
-            'chem_name': self.chem_name,
-            'chem_chinese': self.chem_chinese,
             'formula': self.formula,
+            'chinese': self.chinese,
         }
 
 
-class DBSubstance(BaseDBSubstance):
+class DBSubstance(CDBSubstance):
 
     def __init__(self, load_basic_substance: bool = True):
         super().__init__()
@@ -44,31 +44,31 @@ class DBSubstance(BaseDBSubstance):
         with open(abspath(dirname(__file__)) + '/data/substance.csv') as f:
             reader = csv.reader(f)
 
-            for idx, (cas, chem_chinese, chem_name, smiles, formula) in enumerate(reader):
+            for idx, (name, cas, smiles, formula, chinese) in enumerate(reader):
                 if idx == 0:
                     continue
 
                 self.add_substance(
+                    name,
                     cas = cas,
                     smiles=smiles,
-                    chem_name=chem_name,
-                    chem_chinese=chem_chinese,
                     formula=formula,
+                    chinese=chinese,
                 )
 
     @property
     def size(self) -> int:
         return super().size
 
-    def add_substance(self, smiles: str, cas: str,
-                      chem_name: str, chem_chinese: str,
-                      formula: str) -> None:
+    def add_substance(self, name: str, 
+                      cas: str, smiles: str, formula: str, chinese: str) -> None:
+
         super().add_substance(
-            smiles,
+            name,
             cas = cas,
-            name = chem_name,
-            chinese = chem_chinese,
+            smiles = smiles,
             formula = formula,
+            chinese = chinese,
         )
         self.data[cas] = Substance(self, cas)
 

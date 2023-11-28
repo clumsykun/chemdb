@@ -101,6 +101,7 @@ db_substance_new()
 
     db->ht = ht;
     db->fp_identity = identity_cas;
+    db->identity_name = "CAS Registry Number";
     return db;
 }
 
@@ -179,6 +180,7 @@ db_substance_identity_string(db_substance *db)
 
     else if (db->fp_identity == identity_formula)
         return "formula";
+
     else
         return "error";  /* Should never get here! */
 }

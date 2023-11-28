@@ -1,7 +1,7 @@
-from .core import BaseElement, num_element
+from .core import CElement, num_element
 
 
-class Element(BaseElement):
+class Element(CElement):
     
     def __init__(self, id):
         super().__init__(id)

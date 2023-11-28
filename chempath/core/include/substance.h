@@ -10,9 +10,9 @@
 typedef struct
 {
     hashtable  *ht;
+    const char *identity_name;
     const char *(*fp_identity)(void *);  /* Choose identity as hashtable key. */
 } db_substance;
-
 
 db_substance *db_substance_new();
 void          db_substance_dealloc(db_substance *db);
