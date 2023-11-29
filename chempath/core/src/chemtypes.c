@@ -9,7 +9,7 @@
  * Element Definition
  */
 
-PyObject *
+static PyObject *
 Element_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     Element *self;
@@ -21,7 +21,7 @@ Element_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
 }
 
-int
+static int
 Element_init(Element *self, PyObject *args)
 {
     int id;
@@ -39,46 +39,46 @@ Element_init(Element *self, PyObject *args)
     return 0;
 }
 
-void
+static void
 Element_dealloc(Element *self)
 {
     self->elem = NULL;
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-PyObject *
+static PyObject *
 Element_id(Element *self, void *closure)
 {
     PyObject *o = PyLong_FromSize_t(self->elem->id);
     return (PyObject *) o;
 }
 
-PyObject *
+static PyObject *
 Element_name(Element *self, void *closure)
 {
     return PyUnicode_FromString(self->elem->name);;
 }
 
-PyObject *
+static PyObject *
 Element_chinese(Element *self, void *closure)
 {
     return PyUnicode_FromString(self->elem->chinese);
 }
 
-PyObject *
+static PyObject *
 Element_mass(Element *self, void *closure)
 {
     PyObject *o = PyFloat_FromDouble(self->elem->mass);
     return (PyObject *) o;
 }
 
-PyObject *
+static PyObject *
 Element_symbol(Element *self, void *closure)
 {
     return PyUnicode_FromString(self->elem->symbol);
 }
 
-PyObject *
+static PyObject *
 Element_str(Element *self)
 {
     return PyUnicode_FromFormat("<Element: (%d) %s>", self->elem->id, self->elem->name);
@@ -119,7 +119,7 @@ PyTypeObject Element_Type = {
  * Substance Definition
  */
 
-PyObject *
+static PyObject *
 Substance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     Substance *self;
@@ -131,7 +131,7 @@ Substance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
 }
 
-int
+static int
 Substance_init(Substance *self, PyObject *args)
 {
     DBSubstance *db;
@@ -156,20 +156,21 @@ Substance_init(Substance *self, PyObject *args)
     return 0;
 }
 
-void
+static void
 Substance_dealloc(Substance *self)
 {
     self->data = NULL;
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-PyObject *
+static PyObject *
 Substance_str(Substance *self)
 {
     return PyUnicode_FromFormat("<Substance: (%s) %s>", self->data->cas, self->data->name);
 }
 
-PyObject *Substance_cas(Substance *self)
+static PyObject *
+Substance_cas(Substance *self)
 {
     if (self->data->name)
         return PyUnicode_FromString(self->data->cas);
@@ -177,7 +178,8 @@ PyObject *Substance_cas(Substance *self)
         Py_RETURN_NONE;
 }
 
-PyObject *Substance_smiles(Substance *self)
+static PyObject *
+Substance_smiles(Substance *self)
 {
     if (self->data->name)
         return PyUnicode_FromString(self->data->smiles);
@@ -185,7 +187,8 @@ PyObject *Substance_smiles(Substance *self)
         Py_RETURN_NONE;
 }
 
-PyObject *Substance_name(Substance *self)
+static PyObject *
+Substance_name(Substance *self)
 {
     if (self->data->name)
         return PyUnicode_FromString(self->data->name);
@@ -193,7 +196,8 @@ PyObject *Substance_name(Substance *self)
         Py_RETURN_NONE;
 }
 
-PyObject *Substance_chinese(Substance *self)
+static PyObject *
+Substance_chinese(Substance *self)
 {
     if (self->data->chinese)
         return PyUnicode_FromString(self->data->chinese);
@@ -201,7 +205,8 @@ PyObject *Substance_chinese(Substance *self)
         Py_RETURN_NONE;
 }
 
-PyObject *Substance_formula(Substance *self)
+static PyObject *
+Substance_formula(Substance *self)
 {
     if (self->data->name)
         return PyUnicode_FromString(self->data->formula);
@@ -239,7 +244,7 @@ PyTypeObject Substance_type = {
  * Database of substance Definition
  */
 
-PyObject *
+static PyObject *
 DBSubstance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     DBSubstance *self;
@@ -251,7 +256,7 @@ DBSubstance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
 }
 
-int
+static int
 DBSubstance_init(DBSubstance *self, PyObject *args)
 {
     self->data = db_substance_new();
@@ -264,27 +269,27 @@ DBSubstance_init(DBSubstance *self, PyObject *args)
     return 0;
 }
 
-void
+static void
 DBSubstance_dealloc(DBSubstance *self)
 {
     db_substance_dealloc(self->data);
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-PyObject *
+static PyObject *
 DBSubstance_str(DBSubstance *self)
 {
     return PyUnicode_FromFormat("<DBSubstance, identity by %s>", db_substance_identity_string(self->data));
 }
 
-PyObject *
+static PyObject *
 DBSubstance_size(DBSubstance *self)
 {
     PyObject *o = PyLong_FromSize_t(self->data->ht->used);
     return (PyObject *) o;
 }
 
-PyObject *
+static PyObject *
 DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds)
 {
     const char *name;
