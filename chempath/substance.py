@@ -7,9 +7,13 @@ class Substance(_Substance):
     """
     Wrapper of data from target substance database with identity key.
 
-    Args:
-        db (DBSubstance): target substance database.
-        identity (str): one of ('name', 'cas', 'smiles', 'formula').
+    Parameters
+    ----------
+    db: DBSubstance
+        Target substance database.
+
+    identity: str
+        One of ('name', 'cas', 'smiles', 'formula').
     """
 
     def __init__(self, db, identity):
@@ -33,8 +37,8 @@ class Substance(_Substance):
 
 class DBSubstance(_DBSubstance):
 
-    def __init__(self, load_basic_substance: bool = True):
-        super().__init__()
+    def __init__(self, identity_name: str = "cas", load_basic_substance: bool = True):
+        super().__init__(identity_name)
         self.data: dict = {}
         
         if load_basic_substance:

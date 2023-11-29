@@ -5,6 +5,10 @@
 #include "substance.h"
 
 #define INIT_DB_SIZE 1024
+#define IDENTITY_NAME_NAME "name"
+#define IDENTITY_NAME_CAS "cas"
+#define IDENTITY_NAME_SMILES "smiles"
+#define IDENTITY_NAME_FORMULA "formula"
 
 
 /** ================================================================================================
@@ -58,25 +62,25 @@ substance_dealloc(substance *sbt)
 }
 
 static const char *
-identity_cas(void *sbt)
+substance_cas(void *sbt)
 {
     return ((substance *)sbt)->cas;
 }
 
 static const char *
-identity_smiles(void *sbt)
+substance_smiles(void *sbt)
 {
     return ((substance *)sbt)->smiles;
 }
 
 static const char *
-identity_name(void *sbt)
+substance_name(void *sbt)
 {
     return ((substance *)sbt)->name;
 }
 
 static const char *
-identity_formula(void *sbt)
+substance_formula(void *sbt)
 {
     return ((substance *)sbt)->formula;
 }
@@ -88,21 +92,44 @@ identity_formula(void *sbt)
 
 /* NULL on failure */
 db_substance *
-db_substance_new()
+db_substance_new(const char *identity_name)
 {
     db_substance *db = malloc(sizeof(db_substance));
     hashtable *ht    = hashtable_new();
 
-    if (!(db && ht)) {
-        free(db);
-        free(ht);
-        return NULL;
+    if (!(db && ht))
+        goto db_substance_new_failed;
+
+    if (!strcmp(identity_name, IDENTITY_NAME_NAME)) {
+        db->fp_identity = substance_name;
+        db->identity_name = IDENTITY_NAME_NAME;
     }
 
+    else if (!strcmp(identity_name, IDENTITY_NAME_CAS)) {
+        db->fp_identity = substance_cas;
+        db->identity_name = IDENTITY_NAME_CAS;
+    }
+
+    else if (!strcmp(identity_name, IDENTITY_NAME_SMILES)) {
+        db->fp_identity = substance_smiles;
+        db->identity_name = IDENTITY_NAME_SMILES;
+    }
+
+    else if (!strcmp(identity_name, IDENTITY_NAME_FORMULA)) {
+        db->fp_identity = substance_formula;
+        db->identity_name = IDENTITY_NAME_FORMULA;
+    }
+
+    else
+        goto db_substance_new_failed;
+
     db->ht = ht;
-    db->fp_identity = identity_cas;
-    db->identity_name = "CAS Registry Number";
     return db;
+
+db_substance_new_failed:
+    free(db);
+    hashtable_dealloc(ht);
+    return NULL;
 }
 
 /* Copy & insert sbt into db, return -1 on failure. */
@@ -156,31 +183,32 @@ db_substance_get(db_substance *db, const char *key)
     return hashtable_get(db->ht, key);
 }
 
+/* Clear all key-item pairs in hashtable. */
+static void
+db_substance_clear(db_substance *db)
+{
+    if (!db->ht)
+        return;
+
+    for (size_t i = 0; i < db->ht->size; i++) {
+
+        void **bucket = db->ht->buckets + (i * 2);
+
+        if (bucket[0]) {
+            substance_dealloc(bucket[0]);
+            bucket[0] = NULL;
+            bucket[1] = NULL;
+        }
+    }
+}
+
 void
 db_substance_dealloc(db_substance *db)
 {
-    for (size_t idx = 0; idx < db->ht->size * 2; idx += 2)
-        free(db->ht->buckets[idx]);
+    if (!db)
+        return;
 
+    db_substance_clear(db);
     hashtable_dealloc(db->ht);
     free(db);
-}
-
-const char *
-db_substance_identity_string(db_substance *db)
-{
-    if (db->fp_identity == identity_cas)
-        return "cas";
-
-    else if (db->fp_identity == identity_smiles)
-        return "smiles";
-
-    else if (db->fp_identity == identity_name)
-        return "name";
-
-    else if (db->fp_identity == identity_formula)
-        return "formula";
-
-    else
-        return "error";  /* Should never get here! */
 }

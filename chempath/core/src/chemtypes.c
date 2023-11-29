@@ -15,10 +15,11 @@ Element_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Element *self;
     self = (Element *) type->tp_alloc(type, 0);
 
-    if (self)
-        return (PyObject *) self;
-    else
+    if (!self)
         return NULL;
+
+    self->elem = NULL;
+    return (PyObject *) self;
 }
 
 static int
@@ -125,10 +126,11 @@ Substance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Substance *self;
     self = (Substance *) type->tp_alloc(type, 0);
 
-    if (self)
-        return (PyObject *) self;
-    else
+    if (!self)
         return NULL;
+
+    self->data = NULL;
+    return (PyObject *) self;
 }
 
 static int
@@ -250,19 +252,29 @@ DBSubstance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     DBSubstance *self;
     self = (DBSubstance *) type->tp_alloc(type, 0);
 
-    if (self)
-        return (PyObject *) self;
-    else
+    if (!self)
         return NULL;
+
+    self->data = NULL;
+    return (PyObject *) self;
 }
 
 static int
 DBSubstance_init(DBSubstance *self, PyObject *args)
 {
-    self->data = db_substance_new();
+    const char *identity_name;
+
+    if (!PyArg_ParseTuple(args, "s", &identity_name))
+        return -1;
+
+    self->data = db_substance_new(identity_name);
 
     if (!self->data) {
-        PyErr_Format(PyExc_ValueError, "Substance database initialization failed!");
+        PyErr_Format(
+            PyExc_ValueError,
+            "invalid identity name: '%s'!",
+            identity_name
+        );
         return -1;
     }
 
@@ -279,7 +291,10 @@ DBSubstance_dealloc(DBSubstance *self)
 static PyObject *
 DBSubstance_str(DBSubstance *self)
 {
-    return PyUnicode_FromFormat("<DBSubstance, identity by %s>", db_substance_identity_string(self->data));
+    printf("3\n");
+    const char *s = "cas";
+    printf("%s\n", s);
+    return PyUnicode_FromFormat("<DBSubstance, identity by %s>", self->data->identity_name);
 }
 
 static PyObject *

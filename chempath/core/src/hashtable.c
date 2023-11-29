@@ -140,6 +140,9 @@ hashtable_set(hashtable *ht, const char *key, void *item, bool is_replace)
 void
 hashtable_dealloc(hashtable *ht)
 {
+    if (!ht)
+        return;
+
     free(ht->buckets);
     free(ht);
 }
