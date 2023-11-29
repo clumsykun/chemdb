@@ -130,31 +130,48 @@ Substance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
 
     self->data = NULL;
+    self->db = Py_NewRef(Py_None);
+    self->identity = Py_NewRef(Py_None);
+
     return (PyObject *) self;
 }
 
 static int
 Substance_init(Substance *self, PyObject *args)
 {
-    DBSubstance *db;
-    const char *key;
+    PyObject *db;
+    const char *identity;
 
-    if (!PyArg_ParseTuple(args, "Os", &db, &key))
+    if (!PyArg_ParseTuple(args, "Os", &db, &identity))
         return -1;
 
-    if (strcmp(Py_TYPE(db)->tp_name, "DBSubstance")) {
-        PyErr_Format(PyExc_TypeError, "Except Instance of DBSubstance but get Instance of %s!", Py_TYPE(db)->tp_name);
+    extern PyTypeObject DBSubstance_type;
+    if (!PyObject_IsInstance(db, (PyObject *)(&DBSubstance_type))) {
+        PyErr_Format(
+            PyExc_TypeError,
+            "except 'DBSubstance' but get '%s'!",
+            Py_TYPE(db)->tp_name
+        );
         return -1;
     }
 
-    substance *sbt = db_substance_get(db->data, key);
+    substance *sbt = db_substance_get(
+        ((DBSubstance *)db)->data,
+        identity
+    );
 
     if (!sbt) {
-        PyErr_Format(PyExc_ValueError, "Invalid Substance key!");
+        PyErr_Format(
+            PyExc_ValueError,
+            "Invalid identity: '%s'!",
+            identity
+        );
         return -1;
     }
 
     self->data = sbt;
+    self->db = Py_NewRef(db);
+    self->identity = PyUnicode_FromString(identity);
     return 0;
 }
 
@@ -215,7 +232,6 @@ Substance_formula(Substance *self)
     else
         Py_RETURN_NONE;
 }
-
 
 static PyGetSetDef Substance_getset[] = {
     {"name",    (getter) Substance_name,    (setter) NULL, "Name of chemical substance.", NULL},
@@ -291,9 +307,6 @@ DBSubstance_dealloc(DBSubstance *self)
 static PyObject *
 DBSubstance_str(DBSubstance *self)
 {
-    printf("3\n");
-    const char *s = "cas";
-    printf("%s\n", s);
     return PyUnicode_FromFormat("<DBSubstance, identity by %s>", self->data->identity_name);
 }
 
@@ -354,21 +367,22 @@ DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds)
         }
 
     substance sbt = {cas, smiles, name, chinese, formula};
+    const char *identity = self->data->fp_identity(&sbt);
 
-    if (!self->data->fp_identity(&sbt)) {
+    if (!identity) {
         PyErr_Format(
             PyExc_ValueError,
-            "Database use '%s' as identity key, which must not be None!",
+            "except identity not be None!",
             self->data->identity_name);
         return NULL;
     }
 
     if (db_substance_add(self->data, &sbt) < 0) {
-        PyErr_Format(PyExc_ValueError, "Insert substance to database failed!");
+        PyErr_Format(PyExc_ValueError, "insertion failed!");
         return NULL;
     }
 
-    Py_RETURN_NONE;
+    return PyUnicode_FromString(identity);
 }
 
 

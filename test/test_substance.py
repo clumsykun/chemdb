@@ -5,11 +5,11 @@ from chempath.substance import *
 class TestDBSubstance(unittest.TestCase):
 
     def setUp(self):
-        self.db = DBSubstance(load_basic_substance=False)
+        self.db = DBSubstance('cas', load_basic_substance=False)
 
     def test_basic_substance(self):
 
-        self.db = DBSubstance(load_basic_substance=True)
+        self.db = DBSubstance('cas', load_basic_substance=True)
 
         cas = '100-00-5'
         smiles = 'O=N(=O)C1=CC=C(Cl)C=C1'
@@ -23,6 +23,12 @@ class TestDBSubstance(unittest.TestCase):
         self.assertEqual(substance.name, name)
         self.assertEqual(substance.chinese, chinese)
         self.assertEqual(substance.formula, formula)
+        self.assertEqual(self.db.get_substance(1), None)
+        
+
+    def test_basic_id_smiles(self):
+        self.db = DBSubstance('smiles', load_basic_substance=True)
+        print(self.db.get_substance('[Cl-].ClCC[N+](C)(C)C').to_dict())
 
     def test_duplicate(self):
         

@@ -16,14 +16,8 @@ class Substance(_Substance):
         One of ('name', 'cas', 'smiles', 'formula').
     """
 
-    def __init__(self, db, identity):
+    def __init__(self, db: _DBSubstance, identity: str):
         super().__init__(db, identity)
-
-        self.name: str
-        self.cas: str
-        self.smiles: str
-        self.formula: str
-        self.chinese: str
 
     def to_dict(self) -> dict:
         return {
@@ -37,7 +31,15 @@ class Substance(_Substance):
 
 class DBSubstance(_DBSubstance):
 
-    def __init__(self, identity_name: str = "cas", load_basic_substance: bool = True):
+    def __init__(self, identity_name: str, load_basic_substance: bool = True):
+
+        if identity_name not in ('name', 'cas', 'smiles', 'formula'):
+            raise ValueError(
+                """
+                except parameter 'identity_name' in ('name', 'cas', 'smiles', 'formula').
+                """
+            )
+
         super().__init__(identity_name)
         self.data: dict = {}
         
@@ -65,14 +67,14 @@ class DBSubstance(_DBSubstance):
     def add_substance(self, name: str, cas: str, smiles: str,
                       formula: str, chinese: str) -> None:
 
-        self._add_substance(
+        identity = self._add_substance(
             name,
             cas = cas,
             smiles = smiles,
             formula = formula,
             chinese = chinese,
         )
-        self.data[cas] = Substance(self, cas)
+        self.data[identity] = Substance(self, identity)
 
-    def get_substance(self, identity_key: str) -> Substance:
-        return self.data.get(identity_key)
+    def get_substance(self, identity: str) -> Substance:
+        return self.data.get(identity)
