@@ -18,17 +18,21 @@ class TestDBSubstance(unittest.TestCase):
         formula = 'C<6>H<4>ClNO<2>'
 
         substance = self.db.get_substance('100-00-5')
+        print(substance.to_dict())
+        
         self.assertEqual(substance.cas, cas)
         self.assertEqual(substance.smiles, smiles)
         self.assertEqual(substance.name, name)
         self.assertEqual(substance.chinese, chinese)
         self.assertEqual(substance.formula, formula)
         self.assertEqual(self.db.get_substance(1), None)
-        
 
-    def test_basic_id_smiles(self):
+    def test_basic_use_smiles(self):
         self.db = DBSubstance('smiles', load_basic_substance=True)
-        print(self.db.get_substance('[Cl-].ClCC[N+](C)(C)C').to_dict())
+
+        identity = 'N#CC1=CC=C(F)C=C1'
+        substance = self.db.get_substance(identity)
+        self.assertEqual(substance.identity, identity)
 
     def test_duplicate(self):
         

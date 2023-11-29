@@ -45,7 +45,7 @@ substance_new(const char *cas,
     strcpy(cp_name, name);
     strcpy(cp_chinese, chinese);
     strcpy(cp_formula, formula);
-    substance cp_sbt = {cp_cas, cp_smiles, cp_name, cp_chinese, cp_formula};
+    substance cp_sbt = {cp_name, cp_cas, cp_smiles, cp_formula, cp_chinese};
     memcpy(sbt, &cp_sbt, sizeof(substance));
     return sbt;
 }

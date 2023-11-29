@@ -27,8 +27,8 @@ int main ()
     const char *chinese = "";
     const char *formula = "C<15>H<16>ClF<2>N<3>O";
 
-    db_substance *db = db_substance_new();
-    substance sbt = {cas, smiles, name, chinese, formula};;
+    db_substance *db = db_substance_new("cas");
+    substance sbt = {name, cas, smiles, formula, chinese};
     db_substance_add(db, &sbt);
 
     return 0;

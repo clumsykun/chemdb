@@ -15,11 +15,11 @@ typedef struct
 
 typedef struct
 {
-    const char *const cas;  /* CAS Registry Number */
-    const char *const smiles;  /* Simplified molecular-input line-entry system */
     const char *const name;
-    const char *const chinese;
+    const char *const cas;     /* CAS Registry Number */
+    const char *const smiles;  /* Simplified molecular-input line-entry system */
     const char *const formula;
+    const char *const chinese;
 } substance;
 
 typedef struct

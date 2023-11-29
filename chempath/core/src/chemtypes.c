@@ -233,12 +233,19 @@ Substance_formula(Substance *self)
         Py_RETURN_NONE;
 }
 
+static PyObject *
+Substance_identity(Substance *self)
+{
+    return Py_NewRef(self->identity);
+}
+
 static PyGetSetDef Substance_getset[] = {
-    {"name",    (getter) Substance_name,    (setter) NULL, "Name of chemical substance.", NULL},
-    {"cas",     (getter) Substance_cas,     (setter) NULL, "CAS of chemical substance.", NULL},
-    {"smiles",  (getter) Substance_smiles,  (setter) NULL, "SMILES of chemical substance.", NULL},
-    {"formula", (getter) Substance_formula, (setter) NULL, "Formula of chemical substance.", NULL},
-    {"chinese", (getter) Substance_chinese, (setter) NULL, "Chinese name of chemical substance.", NULL},    
+    {"name",     (getter) Substance_name,     (setter) NULL, "Name of chemical substance.", NULL},
+    {"cas",      (getter) Substance_cas,      (setter) NULL, "CAS of chemical substance.", NULL},
+    {"smiles",   (getter) Substance_smiles,   (setter) NULL, "SMILES of chemical substance.", NULL},
+    {"formula",  (getter) Substance_formula,  (setter) NULL, "Formula of chemical substance.", NULL},
+    {"chinese",  (getter) Substance_chinese,  (setter) NULL, "Chinese name of chemical substance.", NULL},    
+    {"identity", (getter) Substance_identity, (setter) NULL, "Identity of chemical substance.", NULL},    
     {NULL}  /* Sentinel */
 };
 
@@ -366,7 +373,7 @@ DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds)
             return NULL;
         }
 
-    substance sbt = {cas, smiles, name, chinese, formula};
+    substance sbt = {name, cas, smiles, formula, chinese};
     const char *identity = self->data->fp_identity(&sbt);
 
     if (!identity) {

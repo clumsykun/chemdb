@@ -4,6 +4,7 @@ class _Substance:
     smiles: str
     formula: str
     chinese: str
+    identity: str
 
 
 class _DBSubstance:
