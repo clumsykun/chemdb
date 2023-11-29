@@ -7,7 +7,7 @@ class TestDBSubstance(unittest.TestCase):
     def setUp(self):
         self.db = DBSubstance('cas', load_basic_substance=False)
 
-    def test_basic_substance(self):
+    def test_basic_use_cas(self):
 
         self.db = DBSubstance('cas', load_basic_substance=True)
 
@@ -17,9 +17,9 @@ class TestDBSubstance(unittest.TestCase):
         chinese = '对氯硝基苯'
         formula = 'C<6>H<4>ClNO<2>'
 
-        substance = self.db.get_substance('100-00-5')
-        print(substance.to_dict())
+        substance = self.db.get_substance(cas)
         
+        self.assertEqual(substance.identity, cas)
         self.assertEqual(substance.cas, cas)
         self.assertEqual(substance.smiles, smiles)
         self.assertEqual(substance.name, name)
@@ -30,9 +30,36 @@ class TestDBSubstance(unittest.TestCase):
     def test_basic_use_smiles(self):
         self.db = DBSubstance('smiles', load_basic_substance=True)
 
-        identity = 'N#CC1=CC=C(F)C=C1'
-        substance = self.db.get_substance(identity)
-        self.assertEqual(substance.identity, identity)
+        name = 'Benzaldehyde'
+        cas = '100-52-7'
+        smiles = 'O=CC=1C=CC=CC1'
+        formula = 'C<7>H<6>O'
+        chinese = '苯甲醛'
+
+        substance = self.db.get_substance(smiles)
+        self.assertEqual(substance.identity, smiles)
+        self.assertEqual(substance.name, name)
+        self.assertEqual(substance.cas, cas)
+        self.assertEqual(substance.smiles, smiles)
+        self.assertEqual(substance.formula, formula)
+        self.assertEqual(substance.chinese, chinese)
+
+    def test_basic_use_name(self):
+        self.db = DBSubstance('name', load_basic_substance=True)
+
+        name = 'Benzaldehyde'
+        cas = '100-52-7'
+        smiles = 'O=CC=1C=CC=CC1'
+        formula = 'C<7>H<6>O'
+        chinese = '苯甲醛'
+
+        substance = self.db.get_substance(name)
+        self.assertEqual(substance.identity, name)
+        self.assertEqual(substance.name, name)
+        self.assertEqual(substance.cas, cas)
+        self.assertEqual(substance.smiles, smiles)
+        self.assertEqual(substance.formula, formula)
+        self.assertEqual(substance.chinese, chinese)
 
     def test_duplicate(self):
         

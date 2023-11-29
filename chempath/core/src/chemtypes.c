@@ -155,12 +155,12 @@ Substance_init(Substance *self, PyObject *args)
         return -1;
     }
 
-    substance *sbt = db_substance_get(
+    self->data = db_substance_get(
         ((DBSubstance *)db)->data,
         identity
     );
 
-    if (!sbt) {
+    if (!self->data) {
         PyErr_Format(
             PyExc_ValueError,
             "Invalid identity: '%s'!",
@@ -169,9 +169,8 @@ Substance_init(Substance *self, PyObject *args)
         return -1;
     }
 
-    self->data = sbt;
-    self->db = Py_NewRef(db);
-    self->identity = PyUnicode_FromString(identity);
+    Py_SETREF(self->db, Py_NewRef(db));
+    Py_SETREF(self->identity, PyUnicode_FromString(identity));
     return 0;
 }
 
@@ -179,6 +178,8 @@ static void
 Substance_dealloc(Substance *self)
 {
     self->data = NULL;
+    Py_DECREF(self->db);
+    Py_DECREF(self->identity);
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
