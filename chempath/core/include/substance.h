@@ -4,8 +4,6 @@
 #include "dtypes.h"
 #include "hashtable.h"
 
-#define MAX_CAS_LEN 12
-
 
 typedef struct
 {

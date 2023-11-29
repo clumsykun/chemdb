@@ -304,12 +304,34 @@ DBSubstance_size(DBSubstance *self)
     return (PyObject *) o;
 }
 
+/**
+ * A CAS Registry Number includes up to 10 digits which are separated into 3 groups by 2 hyphens. 
+ */
+static bool
+check_cas_validation(const char *cas)
+{
+    if (strlen(cas) > 12)
+        return false;
+
+    size_t cnt = 0;
+    char c;
+
+    while ((c = *cas++))
+        if (c == '-')
+            cnt++;
+
+    if (cnt != 2)
+        return false;
+
+    return true;
+}
+
 static PyObject *
 DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds)
 {
     const char *name;
-    const char *smiles = NULL;
     const char *cas = NULL;
+    const char *smiles = NULL;
     const char *formula = NULL;
     const char *chinese = NULL;
 
@@ -322,8 +344,14 @@ DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds)
     }
 
     if (cas)
-        if (strlen(cas) > MAX_CAS_LEN)
+        if (!check_cas_validation(cas)) {
+            PyErr_Format(
+                PyExc_ValueError,
+                "invalid CAS number: '%s'!",
+                cas
+            );
             return NULL;
+        }
 
     substance sbt = {cas, smiles, name, chinese, formula};
 

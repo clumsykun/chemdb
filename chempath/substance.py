@@ -57,9 +57,9 @@ class DBSubstance(_DBSubstance):
                 self.add_substance(
                     name,
                     cas = cas,
-                    smiles=smiles,
-                    formula=formula,
-                    chinese=chinese,
+                    smiles = smiles,
+                    formula = formula,
+                    chinese = chinese,
                 )
 
     def add_substance(self, name: str, 

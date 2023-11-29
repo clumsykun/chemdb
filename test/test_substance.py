@@ -60,3 +60,34 @@ class TestDBSubstance(unittest.TestCase):
             )
 
         self.assertEqual(self.db.size, size_before)
+
+    def test_cas_max_length(self):
+
+        name = 'test_name'
+        cas = 'AAAAAA-AAAAAAAA-AAAA'
+        smiles = 'test_smiles'
+        chinese = '测试'
+        formula = 'test_formula'
+
+        with self.assertRaises(ValueError) as e:
+            self.db.add_substance(
+                name,
+                cas = cas,
+                smiles = smiles,
+                chinese = chinese,
+                formula = formula
+            )
+
+        self.assertEqual(str(e.exception), "invalid CAS number: '{}'!".format(cas))
+
+        cas = 'AAAAA'
+        with self.assertRaises(ValueError) as e:
+            self.db.add_substance(
+                name,
+                cas = cas,
+                smiles = smiles,
+                chinese = chinese,
+                formula = formula
+            )
+
+        self.assertEqual(str(e.exception), "invalid CAS number: '{}'!".format(cas))
