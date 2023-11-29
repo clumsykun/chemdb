@@ -18,7 +18,7 @@ static PyGetSetDef Element_getset[] = {
 
 PyTypeObject type_Element = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name      = "CElement",
+    .tp_name      = "_Element",
     .tp_doc       = PyDoc_STR("Chemical Element"),
     .tp_basicsize = sizeof(Element),
     .tp_itemsize  = 0,
@@ -47,7 +47,7 @@ static PyGetSetDef Substance_getset[] = {
 
 PyTypeObject type_Substance = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name      = "CSubstance",
+    .tp_name      = "_Substance",
     .tp_doc       = PyDoc_STR("Substance."),
     .tp_basicsize = sizeof(Substance),
     .tp_itemsize  = 0,
@@ -78,7 +78,7 @@ static PyMethodDef DBSubstance_methods[] = {
 
 PyTypeObject type_DBSubstance = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name      = "CDBSubstance",
+    .tp_name      = "_DBSubstance",
     .tp_doc       = PyDoc_STR("Database of substance."),
     .tp_basicsize = sizeof(DBSubstance),
     .tp_itemsize  = 0,
@@ -130,19 +130,19 @@ PyMODINIT_FUNC PyInit__chempath(void)
     Py_INCREF(&type_DBSubstance);
     Py_INCREF(&type_Substance);
 
-    if (PyModule_AddObject(m, "CElement", (PyObject *) &type_Element) < 0) {
+    if (PyModule_AddObject(m, "_Element", (PyObject *) &type_Element) < 0) {
         Py_DECREF(&type_Element);
         Py_DECREF(m);
         return NULL;
     }
 
-    if (PyModule_AddObject(m, "CDBSubstance", (PyObject *) &type_DBSubstance) < 0) {
+    if (PyModule_AddObject(m, "_DBSubstance", (PyObject *) &type_DBSubstance) < 0) {
         Py_DECREF(&type_DBSubstance);
         Py_DECREF(m);
         return NULL;
     }
 
-    if (PyModule_AddObject(m, "CSubstance", (PyObject *) &type_Substance) < 0) {
+    if (PyModule_AddObject(m, "_Substance", (PyObject *) &type_Substance) < 0) {
         Py_DECREF(&type_Substance);
         Py_DECREF(m);
         return NULL;

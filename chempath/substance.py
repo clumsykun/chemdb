@@ -1,9 +1,9 @@
 import csv
 from os.path import abspath, dirname
-from .core import CDBSubstance, CSubstance
+from .core import _DBSubstance, _Substance
 
 
-class Substance(CSubstance):
+class Substance(_Substance):
     """
     Wrapper of data from target substance database with identity key.
 
@@ -31,7 +31,7 @@ class Substance(CSubstance):
         }
 
 
-class DBSubstance(CDBSubstance):
+class DBSubstance(_DBSubstance):
 
     def __init__(self, load_basic_substance: bool = True):
         super().__init__()
