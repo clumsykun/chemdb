@@ -5,9 +5,11 @@ from chempath.substance import *
 class TestDBSubstance(unittest.TestCase):
 
     def setUp(self):
-        self.db = DBSubstance(load_basic_substance=True)
+        self.db = DBSubstance(load_basic_substance=False)
 
     def test_basic_substance(self):
+
+        self.db = DBSubstance(load_basic_substance=True)
 
         cas = '100-00-5'
         smiles = 'O=N(=O)C1=CC=C(Cl)C=C1'
@@ -29,6 +31,14 @@ class TestDBSubstance(unittest.TestCase):
         name = 'test_name'
         chinese = '测试'
         formula = 'test_formula'
+
+        self.db.add_substance(
+            cas = cas,
+            smiles = smiles,
+            name = name,
+            chinese = chinese,
+            formula = formula,
+        )
 
         size_before = self.db.size
         self.db.add_substance(

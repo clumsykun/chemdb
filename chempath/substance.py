@@ -62,8 +62,8 @@ class DBSubstance(_DBSubstance):
                     chinese = chinese,
                 )
 
-    def add_substance(self, name: str, 
-                      cas: str, smiles: str, formula: str, chinese: str) -> None:
+    def add_substance(self, name: str, cas: str, smiles: str,
+                      formula: str, chinese: str) -> None:
 
         self._add_substance(
             name,
