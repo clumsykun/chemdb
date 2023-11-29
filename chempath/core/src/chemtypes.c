@@ -350,7 +350,7 @@ static PyGetSetDef DBSubstance_getset[] = {
 };
 
 static PyMethodDef DBSubstance_methods[] = {
-    {"add_substance", (PyCFunction) DBSubstance_add_substance,  METH_VARARGS | METH_KEYWORDS, "Add substance to database."},
+    {"_add_substance", (PyCFunction) DBSubstance_add_substance,  METH_VARARGS | METH_KEYWORDS, "Add substance to database."},
     {NULL},
 };
 

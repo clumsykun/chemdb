@@ -43,6 +43,8 @@ class DBSubstance(_DBSubstance):
         
         if load_basic_substance:
             self._load_basic_substance()
+            
+        self.size: int
 
     def _load_basic_substance(self):
         with open(abspath(dirname(__file__)) + '/data/substance.csv') as f:
@@ -60,14 +62,10 @@ class DBSubstance(_DBSubstance):
                     chinese=chinese,
                 )
 
-    @property
-    def size(self) -> int:
-        return super().size
-
     def add_substance(self, name: str, 
                       cas: str, smiles: str, formula: str, chinese: str) -> None:
 
-        super().add_substance(
+        self._add_substance(
             name,
             cas = cas,
             smiles = smiles,
