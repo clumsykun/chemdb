@@ -91,6 +91,30 @@ PyLong_num_element()
 }
 
 
+static PyGetSetDef Element_getset[] = {
+    {"id",      (getter) Element_id,      (setter) NULL, "Id of chemical element.", NULL},
+    {"name",    (getter) Element_name,    (setter) NULL, "Name of chemical element.", NULL},
+    {"chinese", (getter) Element_chinese, (setter) NULL, "Chinese name of chemical element.", NULL},
+    {"mass",    (getter) Element_mass,    (setter) NULL, "Mass of chemical element.", NULL},
+    {"symbol",  (getter) Element_symbol,  (setter) NULL, "Symbol of chemical element.", NULL},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject Element_Type = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name      = "_Element",
+    .tp_doc       = PyDoc_STR("Chemical Element"),
+    .tp_basicsize = sizeof(Element),
+    .tp_itemsize  = 0,
+    .tp_flags     = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_new       =              Element_new,
+    .tp_init      = (initproc)   Element_init,
+    .tp_dealloc   = (destructor) Element_dealloc,
+    .tp_str       = (reprfunc)   Element_str,
+    .tp_repr      = (reprfunc)   Element_str,
+    .tp_getset    =              Element_getset,
+};
+
 /* =================================================================================================
  * Substance Definition
  */
@@ -185,6 +209,32 @@ PyObject *Substance_formula(Substance *self)
         Py_RETURN_NONE;
 }
 
+
+static PyGetSetDef Substance_getset[] = {
+    {"name",    (getter) Substance_name,    (setter) NULL, "Name of chemical substance.", NULL},
+    {"cas",     (getter) Substance_cas,     (setter) NULL, "CAS of chemical substance.", NULL},
+    {"smiles",  (getter) Substance_smiles,  (setter) NULL, "SMILES of chemical substance.", NULL},
+    {"formula", (getter) Substance_formula, (setter) NULL, "Formula of chemical substance.", NULL},
+    {"chinese", (getter) Substance_chinese, (setter) NULL, "Chinese name of chemical substance.", NULL},    
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject Substance_type = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name      = "_Substance",
+    .tp_doc       = PyDoc_STR("Substance."),
+    .tp_basicsize = sizeof(Substance),
+    .tp_itemsize  = 0,
+    .tp_flags     = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_new       =              Substance_new,
+    .tp_init      = (initproc)   Substance_init,
+    .tp_dealloc   = (destructor) Substance_dealloc,
+    .tp_str       = (reprfunc)   Substance_str,
+    .tp_repr      = (reprfunc)   Substance_str,
+    .tp_getset    =              Substance_getset,
+    // .tp_methods   =              Substance_methods,
+};
+
 /* =================================================================================================
  * Database of substance Definition
  */
@@ -272,3 +322,30 @@ DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds)
 
     Py_RETURN_NONE;
 }
+
+
+static PyGetSetDef DBSubstance_getset[] = {
+    {"size", (getter) DBSubstance_size, (setter) NULL, "Size of database.", NULL},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef DBSubstance_methods[] = {
+    {"add_substance", (PyCFunction) DBSubstance_add_substance,  METH_VARARGS | METH_KEYWORDS, "Add substance to database."},
+    {NULL},
+};
+
+PyTypeObject DBSubstance_type = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name      = "_DBSubstance",
+    .tp_doc       = PyDoc_STR("Database of substance."),
+    .tp_basicsize = sizeof(DBSubstance),
+    .tp_itemsize  = 0,
+    .tp_flags     = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_new       =              DBSubstance_new,
+    .tp_init      = (initproc)   DBSubstance_init,
+    .tp_dealloc   = (destructor) DBSubstance_dealloc,
+    .tp_str       = (reprfunc)   DBSubstance_str,
+    .tp_repr      = (reprfunc)   DBSubstance_str,
+    .tp_getset    =              DBSubstance_getset,
+    .tp_methods   =              DBSubstance_methods,
+};
