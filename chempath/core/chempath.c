@@ -34,7 +34,6 @@ PyMODINIT_FUNC PyInit__chempath(void)
     if (PyType_Ready(&Substance_type) < 0)
         return NULL;
 
-
     Py_INCREF(&Element_Type);
     Py_INCREF(&DBSubstance_type);
     Py_INCREF(&Substance_type);
