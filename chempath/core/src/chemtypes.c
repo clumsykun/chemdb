@@ -130,7 +130,7 @@ Substance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
 
     self->data = NULL;
-    self->db = Py_NewRef(Py_None);
+    self->DB = Py_NewRef(Py_None);
     self->identity = Py_NewRef(Py_None);
 
     return (PyObject *) self;
@@ -169,7 +169,7 @@ Substance_init(Substance *self, PyObject *args)
         return -1;
     }
 
-    Py_SETREF(self->db, Py_NewRef(db));
+    Py_SETREF(self->DB, Py_NewRef(db));
     Py_SETREF(self->identity, PyUnicode_FromString(identity));
     return 0;
 }
@@ -178,7 +178,7 @@ static void
 Substance_dealloc(Substance *self)
 {
     self->data = NULL;
-    Py_DECREF(self->db);
+    Py_DECREF(self->DB);
     Py_DECREF(self->identity);
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
@@ -418,4 +418,83 @@ PyTypeObject DBSubstance_type = {
     .tp_repr      = (reprfunc)   DBSubstance_str,
     .tp_getset    =              DBSubstance_getset,
     .tp_methods   =              DBSubstance_methods,
+};
+
+
+/* =================================================================================================
+ * Database of step Definition
+ */
+
+static PyObject *
+DBStep_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    DBStep *self;
+    self = (DBStep *) type->tp_alloc(type, 0);
+
+    if (!self)
+        return NULL;
+
+    self->data = NULL;
+    self->DB = Py_NewRef(Py_None);
+    return (PyObject *) self;
+}
+
+static int
+DBStep_init(DBStep *self, PyObject *args)
+{
+    PyObject *db;
+
+    if (!PyArg_ParseTuple(args, "O", &db))
+        return -1;
+
+    if (!PyObject_IsInstance(db, (PyObject *)(&DBSubstance_type))) {
+        PyErr_Format(
+            PyExc_TypeError,
+            "except 'DBSubstance' but get '%s'!",
+            Py_TYPE(db)->tp_name
+        );
+        return -1;
+    }
+
+    self->data = db_step_new((db_substance *)db);
+
+    if (!self->data) {
+        PyErr_Format(
+            PyExc_ValueError,
+            "initialization failed!"
+        );
+        return -1;
+    }
+
+    Py_SETREF(self->DB, Py_NewRef(db));
+    return 0;
+}
+
+static void
+DBStep_dealloc(DBStep *self)
+{
+    db_step_dealloc(self->data);
+    Py_DECREF(self->DB);
+    Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+// DBStep_db_substance(DBStep *self)
+// {
+
+// }
+
+PyTypeObject DBStep_type = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name      = "_DBStep",
+    .tp_doc       = PyDoc_STR("Database of substance."),
+    .tp_basicsize = sizeof(DBStep),
+    .tp_itemsize  = 0,
+    .tp_flags     = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_new       =              DBStep_new,
+    .tp_init      = (initproc)   DBStep_init,
+    .tp_dealloc   = (destructor) DBStep_dealloc,
+    // .tp_str       = (reprfunc)   DBStep_str,
+    // .tp_repr      = (reprfunc)   DBStep_str,
+    // .tp_getset    =              DBStep_getset,
+    // .tp_methods   =              DBStep_methods,
 };

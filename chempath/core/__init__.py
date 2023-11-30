@@ -3,6 +3,7 @@ from ._chempath import (
     _Element,
     _DBSubstance,
     _Substance,
+    _DBStep,
 )
 
 
@@ -11,4 +12,5 @@ __all__ = [
     '_Element',
     '_DBSubstance',
     '_Substance',
+    '_DBStep',
 ]

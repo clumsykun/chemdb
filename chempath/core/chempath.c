@@ -6,6 +6,7 @@
 extern PyTypeObject Element_Type;
 extern PyTypeObject Substance_type;
 extern PyTypeObject DBSubstance_type;
+extern PyTypeObject DBStep_type;
 
 static PyMethodDef methods_module[] = {
     {"num_element", PyLong_num_element, METH_NOARGS, "Number of elements."},
@@ -34,9 +35,13 @@ PyMODINIT_FUNC PyInit__chempath(void)
     if (PyType_Ready(&Substance_type) < 0)
         return NULL;
 
+    if (PyType_Ready(&DBStep_type) < 0)
+        return NULL;
+
     Py_INCREF(&Element_Type);
     Py_INCREF(&DBSubstance_type);
     Py_INCREF(&Substance_type);
+    Py_INCREF(&DBStep_type);
 
     if (PyModule_AddObject(m, "_Element", (PyObject *) &Element_Type) < 0) {
         Py_DECREF(&Element_Type);
@@ -52,6 +57,12 @@ PyMODINIT_FUNC PyInit__chempath(void)
 
     if (PyModule_AddObject(m, "_Substance", (PyObject *) &Substance_type) < 0) {
         Py_DECREF(&Substance_type);
+        Py_DECREF(m);
+        return NULL;
+    }
+
+    if (PyModule_AddObject(m, "_DBStep", (PyObject *) &DBStep_type) < 0) {
+        Py_DECREF(&DBStep_type);
         Py_DECREF(m);
         return NULL;
     }

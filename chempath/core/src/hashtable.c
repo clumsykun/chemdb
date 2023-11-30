@@ -137,6 +137,7 @@ hashtable_set(hashtable *ht, const char *key, void *item, bool is_replace)
     return 0;
 }
 
+/* Always success. */
 void
 hashtable_dealloc(hashtable *ht)
 {

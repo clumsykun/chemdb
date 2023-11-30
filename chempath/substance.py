@@ -16,7 +16,7 @@ class Substance(_Substance):
         One of ('name', 'cas', 'smiles', 'formula').
     """
 
-    def __init__(self, db: _DBSubstance, identity: str):
+    def __init__(self, db: _DBSubstance, identity: str) -> None:
         super().__init__(db, identity)
 
     def to_dict(self) -> dict:
@@ -31,7 +31,7 @@ class Substance(_Substance):
 
 class DBSubstance(_DBSubstance):
 
-    def __init__(self, identity_name: str, load_basic_substance: bool = True):
+    def __init__(self, identity_name: str, load_basic_substance: bool = True) -> None:
 
         if identity_name not in ('name', 'cas', 'smiles', 'formula'):
             raise ValueError(
@@ -48,7 +48,7 @@ class DBSubstance(_DBSubstance):
             
         self.size: int
 
-    def _load_basic_substance(self):
+    def _load_basic_substance(self) -> None:
         with open(abspath(dirname(__file__)) + '/data/substance.csv') as f:
             reader = csv.reader(f)
 
