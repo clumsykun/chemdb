@@ -10,7 +10,7 @@
 typedef struct
 {
     PyObject_HEAD
-    element *elem;
+    element *data;
 } Element;
 
 typedef struct

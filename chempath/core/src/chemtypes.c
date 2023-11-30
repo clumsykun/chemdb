@@ -18,7 +18,7 @@ Element_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (!self)
         return NULL;
 
-    self->elem = NULL;
+    self->data = NULL;
     return (PyObject *) self;
 }
 
@@ -30,9 +30,9 @@ Element_init(Element *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i", &id))
         return -1;
 
-    self->elem = element_locate_by_id((size_t)id);
+    self->data = element_locate_by_id((size_t)id);
 
-    if (!self->elem) {
+    if (!self->data) {
         PyErr_Format(PyExc_ValueError, "Illegal atomic number: %d!", id);
         return -1;
     }
@@ -43,46 +43,46 @@ Element_init(Element *self, PyObject *args)
 static void
 Element_dealloc(Element *self)
 {
-    self->elem = NULL;
+    self->data = NULL;
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 static PyObject *
 Element_id(Element *self, void *closure)
 {
-    PyObject *o = PyLong_FromSize_t(self->elem->id);
+    PyObject *o = PyLong_FromSize_t(self->data->id);
     return (PyObject *) o;
 }
 
 static PyObject *
 Element_name(Element *self, void *closure)
 {
-    return PyUnicode_FromString(self->elem->name);;
+    return PyUnicode_FromString(self->data->name);;
 }
 
 static PyObject *
 Element_chinese(Element *self, void *closure)
 {
-    return PyUnicode_FromString(self->elem->chinese);
+    return PyUnicode_FromString(self->data->chinese);
 }
 
 static PyObject *
 Element_mass(Element *self, void *closure)
 {
-    PyObject *o = PyFloat_FromDouble(self->elem->mass);
+    PyObject *o = PyFloat_FromDouble(self->data->mass);
     return (PyObject *) o;
 }
 
 static PyObject *
 Element_symbol(Element *self, void *closure)
 {
-    return PyUnicode_FromString(self->elem->symbol);
+    return PyUnicode_FromString(self->data->symbol);
 }
 
 static PyObject *
 Element_str(Element *self)
 {
-    return PyUnicode_FromFormat("<Element: (%d) %s>", self->elem->id, self->elem->name);
+    return PyUnicode_FromFormat("<Element: (%d) %s>", self->data->id, self->data->name);
 }
 
 PyObject *
