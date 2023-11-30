@@ -186,13 +186,17 @@ Substance_dealloc(Substance *self)
 static PyObject *
 Substance_str(Substance *self)
 {
-    return PyUnicode_FromFormat("<Substance: (%s) %s>", self->data->cas, self->data->name);
+    return PyUnicode_FromFormat(
+        "<Substance: (%s) %s>",
+        PyUnicode_AsUTF8AndSize(self->identity, NULL),
+        self->data->name
+    );
 }
 
 static PyObject *
 Substance_cas(Substance *self)
 {
-    if (self->data->name)
+    if (self->data->cas)
         return PyUnicode_FromString(self->data->cas);
     else
         Py_RETURN_NONE;
@@ -201,7 +205,7 @@ Substance_cas(Substance *self)
 static PyObject *
 Substance_smiles(Substance *self)
 {
-    if (self->data->name)
+    if (self->data->smiles)
         return PyUnicode_FromString(self->data->smiles);
     else
         Py_RETURN_NONE;
@@ -228,7 +232,7 @@ Substance_chinese(Substance *self)
 static PyObject *
 Substance_formula(Substance *self)
 {
-    if (self->data->name)
+    if (self->data->formula)
         return PyUnicode_FromString(self->data->formula);
     else
         Py_RETURN_NONE;
@@ -375,7 +379,7 @@ DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds)
         }
 
     substance sbt = {name, cas, smiles, formula, chinese};
-    const char *identity = self->data->fp_identity(&sbt);
+    const char *identity = self->data->get_identity(&sbt);
 
     if (!identity) {
         PyErr_Format(
@@ -392,7 +396,6 @@ DBSubstance_add_substance(DBSubstance *self, PyObject *args, PyObject *kwds)
 
     return PyUnicode_FromString(identity);
 }
-
 
 static PyGetSetDef DBSubstance_getset[] = {
     {"size", (getter) DBSubstance_size, (setter) NULL, "Size of database.", NULL},
@@ -478,10 +481,62 @@ DBStep_dealloc(DBStep *self)
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-// DBStep_db_substance(DBStep *self)
-// {
+static PyObject *
+DBStep_db_substance(DBStep *self)
+{
+    Py_INCREF(self->DB);
+    return self->DB;
+}
 
-// }
+static PyObject *
+DBStep_add_step(DBStep *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *target;
+    PyObject *inputs;
+    // const char *name;
+
+    if (!PyArg_ParseTuple(args, "OO", &target, &inputs))
+        return NULL;
+
+    if (!PySequence_Check(inputs)) {
+        PyErr_Format(
+            PyExc_TypeError,
+            "except sequence object but get '%s'!",
+            Py_TYPE(inputs)
+        );
+        return NULL;
+    }
+
+    PyObject *o;
+    for (Py_ssize_t i = 0; i < PySequence_Length(inputs); i++) {
+        o = PySequence_GetItem(inputs, i);
+
+        if (!PyObject_IsInstance(o, (PyObject *)(&Substance_type))) {
+            PyErr_Format(
+                PyExc_TypeError,
+                "except members of 'inputs' are 'DBSubstance', but get '%s'!",
+                Py_TYPE(o)->tp_name
+            );
+            return NULL;
+        }
+
+        PyObject_Print(o, stdout, 0);
+    }
+
+    // self->DB
+    Py_RETURN_NONE;
+}
+
+
+static PyGetSetDef DBStep_getset[] = {
+    {"db_substance", (getter) DBStep_db_substance, (setter) NULL, "Database of substance.", NULL},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef DBStep_methods[] = {
+    {"_add_step", (PyCFunction) DBStep_add_step,  METH_VARARGS, "Add step to database."},
+    {NULL},
+};
 
 PyTypeObject DBStep_type = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -495,6 +550,6 @@ PyTypeObject DBStep_type = {
     .tp_dealloc   = (destructor) DBStep_dealloc,
     // .tp_str       = (reprfunc)   DBStep_str,
     // .tp_repr      = (reprfunc)   DBStep_str,
-    // .tp_getset    =              DBStep_getset,
-    // .tp_methods   =              DBStep_methods,
+    .tp_getset    =              DBStep_getset,
+    .tp_methods   =              DBStep_methods,
 };

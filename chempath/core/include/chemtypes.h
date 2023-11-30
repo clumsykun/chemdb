@@ -18,7 +18,7 @@ typedef struct
 {
     PyObject_HEAD
     substance *data;
-    PyObject *DB;
+    PyObject *DB;  /* DBSubstance */
     PyObject *identity;
 } Substance;
 
@@ -33,7 +33,7 @@ typedef struct
 {
     PyObject_HEAD
     db_step  *data;
-    PyObject *DB;
+    PyObject *DB;  /* DBSubstance */
 } DBStep;
 
 

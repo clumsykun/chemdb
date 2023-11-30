@@ -32,8 +32,8 @@ typedef struct
 
 typedef struct
 {
-    reaction  *reactions;
-    size_t     reactions_num;
+    // reaction  *reactions;
+    // size_t     reactions_num;
     substance *inputs;
     size_t     inputs_num;
     substance *target;

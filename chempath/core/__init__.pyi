@@ -1,3 +1,5 @@
+from typing import Any
+
 class _Element:
     id: int
     name: str
@@ -21,4 +23,6 @@ class _DBSubstance:
         ...
 
 class _DBStep:
-    ...
+
+    # def _add_step(self, target, inputs) -> None:
+    #     ...

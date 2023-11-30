@@ -4,9 +4,18 @@ from chempath.step import DBStep, DBSubstance
 
 class TestDBSubstance(unittest.TestCase):
 
-    def setUp(self):
-        self.db_step = DBStep(DBSubstance('cas'))
-
     def test_basic(self):
-        # print(self.db_step)
-        pass
+        db = DBStep(DBSubstance('cas'))
+
+
+        inputs = [
+            db.db_substance.get_substance('541-41-3'),
+            db.db_substance.get_substance('57946-56-2')
+        ]
+        target = db.db_substance.get_substance('114108-90-6')
+        
+        print(inputs)
+        print(target)
+
+
+        # db.add_step(Benzaldehyde, [Benzaldehyde, Benzaldehyde, Benzaldehyde])

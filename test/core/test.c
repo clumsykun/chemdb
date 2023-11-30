@@ -41,19 +41,22 @@ int main ()
     // substance sbt = {name, cas, smiles, formula, chinese};
     // db_substance_add(db, &sbt);
 
-    size_t size = 5;
-    const char **substances = malloc(size * sizeof(const char *));
-    substances[0] = "Pyriproxyfen";
-    substances[1] = "Bromoacetic acid methyl ester";
-    substances[2] = "Methyl chloroacetate";
-    substances[3] = "Methyl (2R)-2-(4-hydroxyphenoxy)propanoate";
-    substances[4] = "2-sec-Butyl-4,6-dinitrophenyl isopropyl carbonate";
+    // size_t size = 5;
+    // const char **substances = malloc(size * sizeof(const char *));
+    // substances[0] = "Pyriproxyfen";
+    // substances[1] = "Bromoacetic acid methyl ester";
+    // substances[2] = "Methyl chloroacetate";
+    // substances[3] = "Methyl (2R)-2-(4-hydroxyphenoxy)propanoate";
+    // substances[4] = "2-sec-Butyl-4,6-dinitrophenyl isopropyl carbonate";
 
-    qsort(substances, size, sizeof(const char *), string_compare);
+    // qsort(substances, size, sizeof(const char *), string_compare);
 
-    for (size_t i = 0; i < 5; i++) {
-        printf("%s\n", substances[i]);
-    }
+    // for (size_t i = 0; i < 5; i++) {
+    //     printf("%s\n", substances[i]);
+    // }
+
+    const char *x = NULL;
+    size_t a = strlen(x);
 
     return 0;
 }

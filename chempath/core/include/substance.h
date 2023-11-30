@@ -4,12 +4,14 @@
 #include "dtypes.h"
 #include "hashtable.h"
 
+typedef const char *(*fp_get_identity)(void *);
+
 
 typedef struct
 {
     hashtable  *ht;
     const char *identity_name;
-    const char *(*fp_identity)(void *);  /* Choose identity as hashtable key. */
+    fp_get_identity get_identity;  /* Choose identity as hashtable key. */
 } db_substance;
 
 db_substance *db_substance_new(const char *identity_name);

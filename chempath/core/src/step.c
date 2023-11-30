@@ -14,6 +14,21 @@ step_dealloc(step *st)
 
 }
 
+/* Compute & write the identity of step into target. */
+// void
+// step_identity(step *st, const char *target)
+// {
+//     if (!(st && target))
+//         return;
+
+//     size_t size_target = strlen(target);
+//     size_t size_need = 0;
+
+//     // st->target->
+
+
+// }
+
 /* NULL on failure */
 db_step *
 db_step_new(db_substance *db)

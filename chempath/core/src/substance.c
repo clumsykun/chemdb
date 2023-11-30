@@ -24,30 +24,73 @@ substance_new(const char *cas,
               const char *formula)
 {
     substance *sbt = malloc(sizeof(substance));
-    char *cp_cas = malloc(strlen(cas) + 1);
-    char *cp_smiles = malloc(strlen(smiles) + 1);
-    char *cp_name = malloc(strlen(name) + 1);
-    char *cp_chinese = malloc(strlen(chinese) + 1);
-    char *cp_formula = malloc(strlen(formula) + 1);
+    char *cp_name = NULL;
+    char *cp_cas = NULL;
+    char *cp_smiles = NULL;
+    char *cp_formula = NULL;
+    char *cp_chinese = NULL;
 
-    if (!(sbt && cp_cas && cp_smiles && cp_name && cp_chinese && cp_formula)) {
-        free(sbt);
-        free(cp_cas);
-        free(cp_smiles);
-        free(cp_name);
-        free(cp_chinese);
-        free(cp_formula);
-        return NULL;
+    if (!sbt)
+        goto substance_new_failed;
+
+    if (!name)
+        goto substance_new_failed;
+
+    cp_name = malloc(strlen(name) + 1);
+
+    if (!cp_name)
+        goto substance_new_failed;
+
+    strcpy(cp_name, name);
+
+    if (cas) {
+        cp_cas = malloc(strlen(cas) + 1);
+
+        if (!cp_cas)
+            goto substance_new_failed;
+
+        strcpy(cp_cas, cas);
     }
 
-    strcpy(cp_cas, cas);
-    strcpy(cp_smiles, smiles);
-    strcpy(cp_name, name);
-    strcpy(cp_chinese, chinese);
-    strcpy(cp_formula, formula);
+    if (smiles) {
+        cp_smiles = malloc(strlen(smiles) + 1);
+
+        if (!cp_smiles)
+            goto substance_new_failed;
+
+        strcpy(cp_smiles, smiles);
+    }
+
+    if (formula) {
+        cp_formula = malloc(strlen(formula) + 1);
+
+        if (!cp_formula)
+            goto substance_new_failed;
+
+        strcpy(cp_formula, formula);
+    }
+
+    if (chinese) {
+        cp_chinese = malloc(strlen(chinese) + 1);
+
+        if (!cp_chinese)
+            goto substance_new_failed;
+
+        strcpy(cp_chinese, chinese);
+    }
+
     substance cp_sbt = {cp_name, cp_cas, cp_smiles, cp_formula, cp_chinese};
     memcpy(sbt, &cp_sbt, sizeof(substance));
     return sbt;
+
+substance_new_failed:
+    free(sbt);
+    free(cp_cas);
+    free(cp_smiles);
+    free(cp_name);
+    free(cp_chinese);
+    free(cp_formula);
+    return NULL;
 }
 
 void
@@ -101,22 +144,22 @@ db_substance_new(const char *identity_name)
         goto db_substance_new_failed;
 
     if (!strcmp(identity_name, IDENTITY_NAME_NAME)) {
-        db->fp_identity = substance_name;
+        db->get_identity = substance_name;
         db->identity_name = IDENTITY_NAME_NAME;
     }
 
     else if (!strcmp(identity_name, IDENTITY_NAME_CAS)) {
-        db->fp_identity = substance_cas;
+        db->get_identity = substance_cas;
         db->identity_name = IDENTITY_NAME_CAS;
     }
 
     else if (!strcmp(identity_name, IDENTITY_NAME_SMILES)) {
-        db->fp_identity = substance_smiles;
+        db->get_identity = substance_smiles;
         db->identity_name = IDENTITY_NAME_SMILES;
     }
 
     else if (!strcmp(identity_name, IDENTITY_NAME_FORMULA)) {
-        db->fp_identity = substance_formula;
+        db->get_identity = substance_formula;
         db->identity_name = IDENTITY_NAME_FORMULA;
     }
 
@@ -136,7 +179,7 @@ db_substance_new_failed:
 int
 db_substance_add(db_substance *db, substance *sbt)
 {
-    const char *key = db->fp_identity(sbt);
+    const char *key = db->get_identity(sbt);
 
     /* Identity key must not be NULL! */
     if (!key)
